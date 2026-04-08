@@ -33,11 +33,18 @@ target_sources(
   # Autolinking Setup
   ../nitrogen/generated/android/OmniOnLoad.cpp
   # Shared Nitrogen C++ sources
-  ../nitrogen/generated/shared/c++/HybridOmniSpec.cpp
-  ../nitrogen/generated/shared/c++/views/HybridOmniComponent.cpp
+  ../nitrogen/generated/shared/c++/HybridOmniPlayerPropsSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridOmniPlayerSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridOmniPlayerFactorySpec.cpp
+  ../nitrogen/generated/shared/c++/HybridOmniViewSpec.cpp
+  ../nitrogen/generated/shared/c++/views/HybridOmniViewComponent.cpp
   # Android-specific Nitrogen C++ sources
-  ../nitrogen/generated/android/c++/JHybridOmniSpec.cpp
-  ../nitrogen/generated/android/c++/views/JHybridOmniStateUpdater.cpp
+  ../nitrogen/generated/android/c++/JHybridOmniPlayerPropsSpec.cpp
+  ../nitrogen/generated/android/c++/JHybridOmniPlayerSpec.cpp
+  ../nitrogen/generated/android/c++/JVariant_NullType_Rendition.cpp
+  ../nitrogen/generated/android/c++/JHybridOmniPlayerFactorySpec.cpp
+  ../nitrogen/generated/android/c++/JHybridOmniViewSpec.cpp
+  ../nitrogen/generated/android/c++/views/JHybridOmniViewStateUpdater.cpp
 )
 
 # From node_modules/react-native/ReactAndroid/cmake-utils/folly-flags.cmake

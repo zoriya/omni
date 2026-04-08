@@ -10,7 +10,7 @@
 	"scripts": {
 		"typecheck": "tsc --noEmit",
 		"build": "bun run typecheck && bob build",
-		"codegen": "nitrogen --logLevel=\"debug\" && bun run build && node post-script.js"
+		"codegen": "nitrogen --logLevel=\"debug\" && node post-script.js"
 	},
 	"keywords": [
 		"react-native",

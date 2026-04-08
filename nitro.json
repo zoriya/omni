@@ -9,10 +9,22 @@
 		"androidCxxLibName": "Omni"
 	},
 	"autolinking": {
-		"Omni": {
+		"OmniView": {
 			"android": {
 				"language": "kotlin",
-				"implementationClassName": "HybridOmni"
+				"implementationClassName": "OmniView"
+			}
+		},
+		"OmniPlayer": {
+			"android": {
+				"language": "kotlin",
+				"implementationClassName": "OmniPlayer"
+			}
+		},
+		"OmniPlayerFactory": {
+			"android": {
+				"language": "kotlin",
+				"implementationClassName": "OmniPlayerFactory"
 			}
 		}
 	},

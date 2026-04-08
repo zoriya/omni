@@ -1,0 +1,46 @@
+export interface OmniPlayer {
+	play(): void;
+	pause(): void;
+	seekBy(offset: number): void;
+
+	// trigger the prev/next event manually, the user has to implement the event
+	playPrev(): void;
+	playNext(): void;
+	readonly hasPrev: boolean;
+	readonly hasNext: boolean;
+
+	readonly status: PlayerStatus;
+	readonly isPlaying: boolean;
+	currentTime: number;
+	readonly buffered: number;
+	readonly duration: number;
+	playbackRate: number;
+	// between 0 and 1
+	volume: number;
+
+	readonly videos: Track[];
+	selectVideo(video: Track): void;
+	readonly audios: Track[];
+	selectAudio(audio: Track): void;
+	readonly subtitles: Track[];
+	selectSubtitle(subtitle: Track): void;
+	readonly rendition: Rendition[];
+	selectRendition(rendition: Rendition | null): void;
+}
+
+export type PlayerStatus = "idle" | "loading" | "readyToPlay" | "error";
+
+export interface Track {
+	id: string;
+	label?: string;
+	language?: string;
+	selected: boolean;
+}
+
+export interface Rendition {
+	id: string;
+	width: number;
+	height: number;
+	bitrate: number;
+	selected: boolean;
+}

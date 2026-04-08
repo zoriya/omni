@@ -15,8 +15,11 @@
 #include <fbjni/fbjni.h>
 #include <NitroModules/HybridObjectRegistry.hpp>
 
-#include "JHybridOmniSpec.hpp"
-#include "views/JHybridOmniStateUpdater.hpp"
+#include "JHybridOmniPlayerPropsSpec.hpp"
+#include "JHybridOmniPlayerSpec.hpp"
+#include "JHybridOmniPlayerFactorySpec.hpp"
+#include "JHybridOmniViewSpec.hpp"
+#include "views/JHybridOmniViewStateUpdater.hpp"
 #include <NitroModules/DefaultConstructableObject.hpp>
 
 namespace margelo::nitro::omni {
@@ -27,12 +30,28 @@ int initialize(JavaVM* vm) {
   });
 }
 
-struct JHybridOmniSpecImpl: public jni::JavaClass<JHybridOmniSpecImpl, JHybridOmniSpec::JavaPart> {
-  static constexpr auto kJavaDescriptor = "Ldev/zoriya/omni/HybridOmni;";
-  static std::shared_ptr<JHybridOmniSpec> create() {
-    static const auto constructorFn = javaClassStatic()->getConstructor<JHybridOmniSpecImpl::javaobject()>();
-    jni::local_ref<JHybridOmniSpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);
-    return javaPart->getJHybridOmniSpec();
+struct JHybridOmniViewSpecImpl: public jni::JavaClass<JHybridOmniViewSpecImpl, JHybridOmniViewSpec::JavaPart> {
+  static constexpr auto kJavaDescriptor = "Ldev/zoriya/omni/OmniView;";
+  static std::shared_ptr<JHybridOmniViewSpec> create() {
+    static const auto constructorFn = javaClassStatic()->getConstructor<JHybridOmniViewSpecImpl::javaobject()>();
+    jni::local_ref<JHybridOmniViewSpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);
+    return javaPart->getJHybridOmniViewSpec();
+  }
+};
+struct JHybridOmniPlayerSpecImpl: public jni::JavaClass<JHybridOmniPlayerSpecImpl, JHybridOmniPlayerSpec::JavaPart> {
+  static constexpr auto kJavaDescriptor = "Ldev/zoriya/omni/OmniPlayer;";
+  static std::shared_ptr<JHybridOmniPlayerSpec> create() {
+    static const auto constructorFn = javaClassStatic()->getConstructor<JHybridOmniPlayerSpecImpl::javaobject()>();
+    jni::local_ref<JHybridOmniPlayerSpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);
+    return javaPart->getJHybridOmniPlayerSpec();
+  }
+};
+struct JHybridOmniPlayerFactorySpecImpl: public jni::JavaClass<JHybridOmniPlayerFactorySpecImpl, JHybridOmniPlayerFactorySpec::JavaPart> {
+  static constexpr auto kJavaDescriptor = "Ldev/zoriya/omni/OmniPlayerFactory;";
+  static std::shared_ptr<JHybridOmniPlayerFactorySpec> create() {
+    static const auto constructorFn = javaClassStatic()->getConstructor<JHybridOmniPlayerFactorySpecImpl::javaobject()>();
+    jni::local_ref<JHybridOmniPlayerFactorySpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);
+    return javaPart->getJHybridOmniPlayerFactorySpec();
   }
 };
 
@@ -41,14 +60,29 @@ void registerAllNatives() {
   using namespace margelo::nitro::omni;
 
   // Register native JNI methods
-  margelo::nitro::omni::JHybridOmniSpec::CxxPart::registerNatives();
-  margelo::nitro::omni::views::JHybridOmniStateUpdater::registerNatives();
+  margelo::nitro::omni::JHybridOmniPlayerPropsSpec::CxxPart::registerNatives();
+  margelo::nitro::omni::JHybridOmniPlayerSpec::CxxPart::registerNatives();
+  margelo::nitro::omni::JHybridOmniPlayerFactorySpec::CxxPart::registerNatives();
+  margelo::nitro::omni::JHybridOmniViewSpec::CxxPart::registerNatives();
+  margelo::nitro::omni::views::JHybridOmniViewStateUpdater::registerNatives();
 
   // Register Nitro Hybrid Objects
   HybridObjectRegistry::registerHybridObjectConstructor(
-    "Omni",
+    "OmniView",
     []() -> std::shared_ptr<HybridObject> {
-      return JHybridOmniSpecImpl::create();
+      return JHybridOmniViewSpecImpl::create();
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "OmniPlayer",
+    []() -> std::shared_ptr<HybridObject> {
+      return JHybridOmniPlayerSpecImpl::create();
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "OmniPlayerFactory",
+    []() -> std::shared_ptr<HybridObject> {
+      return JHybridOmniPlayerFactorySpecImpl::create();
     }
   );
 }
