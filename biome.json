@@ -20,6 +20,8 @@
 				"noNonNullAssertion": "off"
 			},
 			"correctness": {
+				"noUnusedVariables": "off",
+				"noUnusedFunctionParameters": "off",
 				"useExhaustiveDependencies": {
 					"level": "warn",
 					"options": {

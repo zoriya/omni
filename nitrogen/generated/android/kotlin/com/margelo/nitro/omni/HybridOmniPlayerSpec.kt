@@ -27,6 +27,10 @@ abstract class HybridOmniPlayerSpec: HybridObject() {
   // Properties
   @get:DoNotStrip
   @get:Keep
+  abstract val eventMap: HybridOmniEventMapSpec
+  
+  @get:DoNotStrip
+  @get:Keep
   @set:DoNotStrip
   @set:Keep
   abstract var source: Source
@@ -38,6 +42,22 @@ abstract class HybridOmniPlayerSpec: HybridObject() {
   @get:DoNotStrip
   @get:Keep
   abstract val hasNext: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val videos: Array<Track>
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val audios: Array<Track>
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val subtitles: Array<Track>
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val rendition: Array<Rendition>
   
   @get:DoNotStrip
   @get:Keep
@@ -72,22 +92,6 @@ abstract class HybridOmniPlayerSpec: HybridObject() {
   @set:DoNotStrip
   @set:Keep
   abstract var volume: Double
-  
-  @get:DoNotStrip
-  @get:Keep
-  abstract val videos: Array<Track>
-  
-  @get:DoNotStrip
-  @get:Keep
-  abstract val audios: Array<Track>
-  
-  @get:DoNotStrip
-  @get:Keep
-  abstract val subtitles: Array<Track>
-  
-  @get:DoNotStrip
-  @get:Keep
-  abstract val rendition: Array<Rendition>
 
   // Methods
   @DoNotStrip

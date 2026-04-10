@@ -50,10 +50,15 @@ namespace margelo::nitro::omni {
 
   public:
     // Properties
+    std::shared_ptr<HybridOmniEventMapSpec> getEventMap() override;
     Source getSource() override;
     void setSource(const Source& source) override;
     bool getHasPrev() override;
     bool getHasNext() override;
+    std::vector<Track> getVideos() override;
+    std::vector<Track> getAudios() override;
+    std::vector<Track> getSubtitles() override;
+    std::vector<Rendition> getRendition() override;
     PlayerStatus getStatus() override;
     bool getIsPlaying() override;
     double getCurrentTime() override;
@@ -64,10 +69,6 @@ namespace margelo::nitro::omni {
     void setPlaybackRate(double playbackRate) override;
     double getVolume() override;
     void setVolume(double volume) override;
-    std::vector<Track> getVideos() override;
-    std::vector<Track> getAudios() override;
-    std::vector<Track> getSubtitles() override;
-    std::vector<Rendition> getRendition() override;
 
   public:
     // Methods

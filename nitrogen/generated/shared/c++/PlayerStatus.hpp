@@ -29,10 +29,10 @@ namespace margelo::nitro::omni {
    * An enum which can be represented as a JavaScript union (PlayerStatus).
    */
   enum class PlayerStatus {
-    IDLE      SWIFT_NAME(idle) = 0,
-    LOADING      SWIFT_NAME(loading) = 1,
-    READYTOPLAY      SWIFT_NAME(readytoplay) = 2,
-    ERROR      SWIFT_NAME(error) = 3,
+    ERROR      SWIFT_NAME(error) = 0,
+    IDLE      SWIFT_NAME(idle) = 1,
+    LOADING      SWIFT_NAME(loading) = 2,
+    READYTOPLAY      SWIFT_NAME(readytoplay) = 3,
   } CLOSED_ENUM;
 
 } // namespace margelo::nitro::omni
@@ -45,20 +45,20 @@ namespace margelo::nitro {
     static inline margelo::nitro::omni::PlayerStatus fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, arg);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
+        case hashString("error"): return margelo::nitro::omni::PlayerStatus::ERROR;
         case hashString("idle"): return margelo::nitro::omni::PlayerStatus::IDLE;
         case hashString("loading"): return margelo::nitro::omni::PlayerStatus::LOADING;
         case hashString("readyToPlay"): return margelo::nitro::omni::PlayerStatus::READYTOPLAY;
-        case hashString("error"): return margelo::nitro::omni::PlayerStatus::ERROR;
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert \"" + unionValue + "\" to enum PlayerStatus - invalid value!");
       }
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, margelo::nitro::omni::PlayerStatus arg) {
       switch (arg) {
+        case margelo::nitro::omni::PlayerStatus::ERROR: return JSIConverter<std::string>::toJSI(runtime, "error");
         case margelo::nitro::omni::PlayerStatus::IDLE: return JSIConverter<std::string>::toJSI(runtime, "idle");
         case margelo::nitro::omni::PlayerStatus::LOADING: return JSIConverter<std::string>::toJSI(runtime, "loading");
         case margelo::nitro::omni::PlayerStatus::READYTOPLAY: return JSIConverter<std::string>::toJSI(runtime, "readyToPlay");
-        case margelo::nitro::omni::PlayerStatus::ERROR: return JSIConverter<std::string>::toJSI(runtime, "error");
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert PlayerStatus to JS - invalid value: "
                                     + std::to_string(static_cast<int>(arg)) + "!");
@@ -70,10 +70,10 @@ namespace margelo::nitro {
       }
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, value);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
+        case hashString("error"):
         case hashString("idle"):
         case hashString("loading"):
         case hashString("readyToPlay"):
-        case hashString("error"):
           return true;
         default:
           return false;

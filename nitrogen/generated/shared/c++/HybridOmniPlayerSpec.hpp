@@ -13,20 +13,24 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `HybridOmniEventMapSpec` to properly resolve imports.
+namespace margelo::nitro::omni { class HybridOmniEventMapSpec; }
 // Forward declaration of `Source` to properly resolve imports.
 namespace margelo::nitro::omni { struct Source; }
-// Forward declaration of `PlayerStatus` to properly resolve imports.
-namespace margelo::nitro::omni { enum class PlayerStatus; }
 // Forward declaration of `Track` to properly resolve imports.
 namespace margelo::nitro::omni { struct Track; }
 // Forward declaration of `Rendition` to properly resolve imports.
 namespace margelo::nitro::omni { struct Rendition; }
+// Forward declaration of `PlayerStatus` to properly resolve imports.
+namespace margelo::nitro::omni { enum class PlayerStatus; }
 
+#include <memory>
+#include "HybridOmniEventMapSpec.hpp"
 #include "Source.hpp"
-#include "PlayerStatus.hpp"
 #include "Track.hpp"
 #include <vector>
 #include "Rendition.hpp"
+#include "PlayerStatus.hpp"
 #include <optional>
 
 namespace margelo::nitro::omni {
@@ -56,10 +60,15 @@ namespace margelo::nitro::omni {
 
     public:
       // Properties
+      virtual std::shared_ptr<HybridOmniEventMapSpec> getEventMap() = 0;
       virtual Source getSource() = 0;
       virtual void setSource(const Source& source) = 0;
       virtual bool getHasPrev() = 0;
       virtual bool getHasNext() = 0;
+      virtual std::vector<Track> getVideos() = 0;
+      virtual std::vector<Track> getAudios() = 0;
+      virtual std::vector<Track> getSubtitles() = 0;
+      virtual std::vector<Rendition> getRendition() = 0;
       virtual PlayerStatus getStatus() = 0;
       virtual bool getIsPlaying() = 0;
       virtual double getCurrentTime() = 0;
@@ -70,10 +79,6 @@ namespace margelo::nitro::omni {
       virtual void setPlaybackRate(double playbackRate) = 0;
       virtual double getVolume() = 0;
       virtual void setVolume(double volume) = 0;
-      virtual std::vector<Track> getVideos() = 0;
-      virtual std::vector<Track> getAudios() = 0;
-      virtual std::vector<Track> getSubtitles() = 0;
-      virtual std::vector<Rendition> getRendition() = 0;
 
     public:
       // Methods

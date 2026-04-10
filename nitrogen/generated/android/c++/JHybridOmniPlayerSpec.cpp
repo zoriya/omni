@@ -7,6 +7,8 @@
 
 #include "JHybridOmniPlayerSpec.hpp"
 
+// Forward declaration of `HybridOmniEventMapSpec` to properly resolve imports.
+namespace margelo::nitro::omni { class HybridOmniEventMapSpec; }
 // Forward declaration of `Source` to properly resolve imports.
 namespace margelo::nitro::omni { struct Source; }
 // Forward declaration of `VideoSrc` to properly resolve imports.
@@ -17,13 +19,16 @@ namespace margelo::nitro::omni { struct Subtitle; }
 namespace margelo::nitro::omni { struct Metadata; }
 // Forward declaration of `MixAudioMode` to properly resolve imports.
 namespace margelo::nitro::omni { enum class MixAudioMode; }
-// Forward declaration of `PlayerStatus` to properly resolve imports.
-namespace margelo::nitro::omni { enum class PlayerStatus; }
 // Forward declaration of `Track` to properly resolve imports.
 namespace margelo::nitro::omni { struct Track; }
 // Forward declaration of `Rendition` to properly resolve imports.
 namespace margelo::nitro::omni { struct Rendition; }
+// Forward declaration of `PlayerStatus` to properly resolve imports.
+namespace margelo::nitro::omni { enum class PlayerStatus; }
 
+#include <memory>
+#include "HybridOmniEventMapSpec.hpp"
+#include "JHybridOmniEventMapSpec.hpp"
 #include "Source.hpp"
 #include "JSource.hpp"
 #include "VideoSrc.hpp"
@@ -38,12 +43,12 @@ namespace margelo::nitro::omni { struct Rendition; }
 #include "JMetadata.hpp"
 #include "MixAudioMode.hpp"
 #include "JMixAudioMode.hpp"
-#include "PlayerStatus.hpp"
-#include "JPlayerStatus.hpp"
 #include "Track.hpp"
 #include "JTrack.hpp"
 #include "Rendition.hpp"
 #include "JRendition.hpp"
+#include "PlayerStatus.hpp"
+#include "JPlayerStatus.hpp"
 
 namespace margelo::nitro::omni {
 
@@ -75,6 +80,11 @@ namespace margelo::nitro::omni {
   }
 
   // Properties
+  std::shared_ptr<HybridOmniEventMapSpec> JHybridOmniPlayerSpec::getEventMap() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JHybridOmniEventMapSpec::JavaPart>()>("getEventMap");
+    auto __result = method(_javaPart);
+    return __result->getJHybridOmniEventMapSpec();
+  }
   Source JHybridOmniPlayerSpec::getSource() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JSource>()>("getSource");
     auto __result = method(_javaPart);
@@ -93,53 +103,6 @@ namespace margelo::nitro::omni {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("getHasNext");
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
-  }
-  PlayerStatus JHybridOmniPlayerSpec::getStatus() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPlayerStatus>()>("getStatus");
-    auto __result = method(_javaPart);
-    return __result->toCpp();
-  }
-  bool JHybridOmniPlayerSpec::getIsPlaying() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("isPlaying");
-    auto __result = method(_javaPart);
-    return static_cast<bool>(__result);
-  }
-  double JHybridOmniPlayerSpec::getCurrentTime() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<double()>("getCurrentTime");
-    auto __result = method(_javaPart);
-    return __result;
-  }
-  void JHybridOmniPlayerSpec::setCurrentTime(double currentTime) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<void(double /* currentTime */)>("setCurrentTime");
-    method(_javaPart, currentTime);
-  }
-  double JHybridOmniPlayerSpec::getBuffered() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<double()>("getBuffered");
-    auto __result = method(_javaPart);
-    return __result;
-  }
-  double JHybridOmniPlayerSpec::getDuration() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<double()>("getDuration");
-    auto __result = method(_javaPart);
-    return __result;
-  }
-  double JHybridOmniPlayerSpec::getPlaybackRate() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<double()>("getPlaybackRate");
-    auto __result = method(_javaPart);
-    return __result;
-  }
-  void JHybridOmniPlayerSpec::setPlaybackRate(double playbackRate) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<void(double /* playbackRate */)>("setPlaybackRate");
-    method(_javaPart, playbackRate);
-  }
-  double JHybridOmniPlayerSpec::getVolume() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<double()>("getVolume");
-    auto __result = method(_javaPart);
-    return __result;
-  }
-  void JHybridOmniPlayerSpec::setVolume(double volume) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<void(double /* volume */)>("setVolume");
-    method(_javaPart, volume);
   }
   std::vector<Track> JHybridOmniPlayerSpec::getVideos() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JTrack>>()>("getVideos");
@@ -196,6 +159,53 @@ namespace margelo::nitro::omni {
       }
       return __vector;
     }();
+  }
+  PlayerStatus JHybridOmniPlayerSpec::getStatus() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPlayerStatus>()>("getStatus");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  bool JHybridOmniPlayerSpec::getIsPlaying() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("isPlaying");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  double JHybridOmniPlayerSpec::getCurrentTime() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<double()>("getCurrentTime");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  void JHybridOmniPlayerSpec::setCurrentTime(double currentTime) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(double /* currentTime */)>("setCurrentTime");
+    method(_javaPart, currentTime);
+  }
+  double JHybridOmniPlayerSpec::getBuffered() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<double()>("getBuffered");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  double JHybridOmniPlayerSpec::getDuration() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<double()>("getDuration");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  double JHybridOmniPlayerSpec::getPlaybackRate() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<double()>("getPlaybackRate");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  void JHybridOmniPlayerSpec::setPlaybackRate(double playbackRate) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(double /* playbackRate */)>("setPlaybackRate");
+    method(_javaPart, playbackRate);
+  }
+  double JHybridOmniPlayerSpec::getVolume() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<double()>("getVolume");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  void JHybridOmniPlayerSpec::setVolume(double volume) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(double /* volume */)>("setVolume");
+    method(_javaPart, volume);
   }
 
   // Methods

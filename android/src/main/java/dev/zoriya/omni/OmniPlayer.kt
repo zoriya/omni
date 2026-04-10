@@ -2,6 +2,7 @@ package dev.zoriya.omni
 
 import android.net.Uri
 import com.margelo.nitro.NitroModules
+import com.margelo.nitro.omni.HybridOmniEventMapSpec
 import com.margelo.nitro.omni.Source
 import com.margelo.nitro.omni.HybridOmniPlayerSpec
 import com.margelo.nitro.omni.PlayerStatus
@@ -19,6 +20,7 @@ object VlcConst {
 
 class OmniPlayer() : HybridOmniPlayerSpec() {
     val player = MediaPlayer(VlcConst.vlc)
+    override val eventMap = EventMap(player);
 
     override var source: Source by deferredObservable { _, _, new ->
         val src = new.src.firstOrNull()?.uri ?: return@deferredObservable

@@ -14,10 +14,15 @@ namespace margelo::nitro::omni {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
+      prototype.registerHybridGetter("eventMap", &HybridOmniPlayerSpec::getEventMap);
       prototype.registerHybridGetter("source", &HybridOmniPlayerSpec::getSource);
       prototype.registerHybridSetter("source", &HybridOmniPlayerSpec::setSource);
       prototype.registerHybridGetter("hasPrev", &HybridOmniPlayerSpec::getHasPrev);
       prototype.registerHybridGetter("hasNext", &HybridOmniPlayerSpec::getHasNext);
+      prototype.registerHybridGetter("videos", &HybridOmniPlayerSpec::getVideos);
+      prototype.registerHybridGetter("audios", &HybridOmniPlayerSpec::getAudios);
+      prototype.registerHybridGetter("subtitles", &HybridOmniPlayerSpec::getSubtitles);
+      prototype.registerHybridGetter("rendition", &HybridOmniPlayerSpec::getRendition);
       prototype.registerHybridGetter("status", &HybridOmniPlayerSpec::getStatus);
       prototype.registerHybridGetter("isPlaying", &HybridOmniPlayerSpec::getIsPlaying);
       prototype.registerHybridGetter("currentTime", &HybridOmniPlayerSpec::getCurrentTime);
@@ -28,10 +33,6 @@ namespace margelo::nitro::omni {
       prototype.registerHybridSetter("playbackRate", &HybridOmniPlayerSpec::setPlaybackRate);
       prototype.registerHybridGetter("volume", &HybridOmniPlayerSpec::getVolume);
       prototype.registerHybridSetter("volume", &HybridOmniPlayerSpec::setVolume);
-      prototype.registerHybridGetter("videos", &HybridOmniPlayerSpec::getVideos);
-      prototype.registerHybridGetter("audios", &HybridOmniPlayerSpec::getAudios);
-      prototype.registerHybridGetter("subtitles", &HybridOmniPlayerSpec::getSubtitles);
-      prototype.registerHybridGetter("rendition", &HybridOmniPlayerSpec::getRendition);
       prototype.registerHybridMethod("play", &HybridOmniPlayerSpec::play);
       prototype.registerHybridMethod("pause", &HybridOmniPlayerSpec::pause);
       prototype.registerHybridMethod("seekBy", &HybridOmniPlayerSpec::seekBy);

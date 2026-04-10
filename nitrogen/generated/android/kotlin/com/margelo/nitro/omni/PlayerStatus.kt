@@ -16,10 +16,10 @@ import com.facebook.proguard.annotations.DoNotStrip
 @DoNotStrip
 @Keep
 enum class PlayerStatus(@DoNotStrip @Keep val value: Int) {
-  IDLE(0),
-  LOADING(1),
-  READYTOPLAY(2),
-  ERROR(3);
+  ERROR(0),
+  IDLE(1),
+  LOADING(2),
+  READYTOPLAY(3);
 
   companion object
 }

@@ -1,6 +1,6 @@
 import type { Source } from "./source";
 
-export interface OmniPlayer {
+export interface OmniPlayer extends OmniPlayerState {
 	source: Source;
 
 	play(): void;
@@ -13,15 +13,6 @@ export interface OmniPlayer {
 	readonly hasPrev: boolean;
 	readonly hasNext: boolean;
 
-	readonly status: PlayerStatus;
-	readonly isPlaying: boolean;
-	currentTime: number;
-	readonly buffered: number;
-	readonly duration: number;
-	playbackRate: number;
-	// between 0 and 1
-	volume: number;
-
 	readonly videos: Track[];
 	selectVideo(video: Track): void;
 	readonly audios: Track[];
@@ -30,6 +21,17 @@ export interface OmniPlayer {
 	selectSubtitle(subtitle?: Track): void;
 	readonly rendition: Rendition[];
 	selectRendition(rendition?: Rendition): void;
+}
+
+export interface OmniPlayerState {
+	readonly status: PlayerStatus;
+	readonly isPlaying: boolean;
+	currentTime: number;
+	readonly buffered: number;
+	readonly duration: number;
+	playbackRate: number;
+	// between 0 and 1
+	volume: number;
 }
 
 export type PlayerStatus = "idle" | "loading" | "readyToPlay" | "error";
