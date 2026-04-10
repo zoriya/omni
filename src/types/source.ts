@@ -1,4 +1,4 @@
-export interface OmniPlayerProps {
+export interface Source {
 	src: VideoSrc[];
 	startTime?: number;
 	subtitles: Subtitle[];

@@ -18,6 +18,19 @@
 			"recommended": true,
 			"style": {
 				"noNonNullAssertion": "off"
+			},
+			"correctness": {
+				"useExhaustiveDependencies": {
+					"level": "warn",
+					"options": {
+						"hooks": [
+							{
+								"name": "useLazyRef",
+								"stableResult": true
+							}
+						]
+					}
+				}
 			}
 		}
 	},

@@ -27,6 +27,12 @@ abstract class HybridOmniPlayerSpec: HybridObject() {
   // Properties
   @get:DoNotStrip
   @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var source: Source
+  
+  @get:DoNotStrip
+  @get:Keep
   abstract val hasPrev: Boolean
   
   @get:DoNotStrip

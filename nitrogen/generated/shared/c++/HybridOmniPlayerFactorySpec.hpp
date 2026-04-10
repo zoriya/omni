@@ -15,12 +15,12 @@
 
 // Forward declaration of `HybridOmniPlayerSpec` to properly resolve imports.
 namespace margelo::nitro::omni { class HybridOmniPlayerSpec; }
-// Forward declaration of `HybridOmniPlayerPropsSpec` to properly resolve imports.
-namespace margelo::nitro::omni { class HybridOmniPlayerPropsSpec; }
+// Forward declaration of `Source` to properly resolve imports.
+namespace margelo::nitro::omni { struct Source; }
 
 #include <memory>
 #include "HybridOmniPlayerSpec.hpp"
-#include "HybridOmniPlayerPropsSpec.hpp"
+#include "Source.hpp"
 
 namespace margelo::nitro::omni {
 
@@ -53,7 +53,7 @@ namespace margelo::nitro::omni {
 
     public:
       // Methods
-      virtual std::shared_ptr<HybridOmniPlayerSpec> createPlayer(const std::shared_ptr<HybridOmniPlayerPropsSpec>& props) = 0;
+      virtual std::shared_ptr<HybridOmniPlayerSpec> createPlayer(const Source& props) = 0;
 
     protected:
       // Hybrid Setup

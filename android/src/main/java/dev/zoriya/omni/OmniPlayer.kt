@@ -2,7 +2,7 @@ package dev.zoriya.omni
 
 import android.net.Uri
 import com.margelo.nitro.NitroModules
-import com.margelo.nitro.omni.HybridOmniPlayerPropsSpec
+import com.margelo.nitro.omni.Source
 import com.margelo.nitro.omni.HybridOmniPlayerSpec
 import com.margelo.nitro.omni.PlayerStatus
 import com.margelo.nitro.omni.Rendition
@@ -17,7 +17,7 @@ class OmniPlayer() : HybridOmniPlayerSpec() {
     val vlc = LibVLC(NitroModules.applicationContext ?: throw Error("No Context available!"))
     val player = MediaPlayer(vlc)
 
-    var source: HybridOmniPlayerPropsSpec by deferredObservable { _, _, new ->
+    override var source: Source by deferredObservable { _, _, new ->
         val src = new.src.firstOrNull()?.uri ?: return@deferredObservable
         player.media = Media(vlc, Uri.parse(src))
         new.startTime?.let { start ->

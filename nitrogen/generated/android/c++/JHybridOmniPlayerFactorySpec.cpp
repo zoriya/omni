@@ -9,14 +9,34 @@
 
 // Forward declaration of `HybridOmniPlayerSpec` to properly resolve imports.
 namespace margelo::nitro::omni { class HybridOmniPlayerSpec; }
-// Forward declaration of `HybridOmniPlayerPropsSpec` to properly resolve imports.
-namespace margelo::nitro::omni { class HybridOmniPlayerPropsSpec; }
+// Forward declaration of `Source` to properly resolve imports.
+namespace margelo::nitro::omni { struct Source; }
+// Forward declaration of `VideoSrc` to properly resolve imports.
+namespace margelo::nitro::omni { struct VideoSrc; }
+// Forward declaration of `Subtitle` to properly resolve imports.
+namespace margelo::nitro::omni { struct Subtitle; }
+// Forward declaration of `Metadata` to properly resolve imports.
+namespace margelo::nitro::omni { struct Metadata; }
+// Forward declaration of `MixAudioMode` to properly resolve imports.
+namespace margelo::nitro::omni { enum class MixAudioMode; }
 
 #include <memory>
 #include "HybridOmniPlayerSpec.hpp"
 #include "JHybridOmniPlayerSpec.hpp"
-#include "HybridOmniPlayerPropsSpec.hpp"
-#include "JHybridOmniPlayerPropsSpec.hpp"
+#include "Source.hpp"
+#include "JSource.hpp"
+#include "VideoSrc.hpp"
+#include <vector>
+#include "JVideoSrc.hpp"
+#include <string>
+#include <optional>
+#include <unordered_map>
+#include "Subtitle.hpp"
+#include "JSubtitle.hpp"
+#include "Metadata.hpp"
+#include "JMetadata.hpp"
+#include "MixAudioMode.hpp"
+#include "JMixAudioMode.hpp"
 
 namespace margelo::nitro::omni {
 
@@ -51,9 +71,9 @@ namespace margelo::nitro::omni {
   
 
   // Methods
-  std::shared_ptr<HybridOmniPlayerSpec> JHybridOmniPlayerFactorySpec::createPlayer(const std::shared_ptr<HybridOmniPlayerPropsSpec>& props) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JHybridOmniPlayerSpec::JavaPart>(jni::alias_ref<JHybridOmniPlayerPropsSpec::JavaPart> /* props */)>("createPlayer");
-    auto __result = method(_javaPart, std::dynamic_pointer_cast<JHybridOmniPlayerPropsSpec>(props)->getJavaPart());
+  std::shared_ptr<HybridOmniPlayerSpec> JHybridOmniPlayerFactorySpec::createPlayer(const Source& props) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JHybridOmniPlayerSpec::JavaPart>(jni::alias_ref<JSource> /* props */)>("createPlayer");
+    auto __result = method(_javaPart, JSource::fromCpp(props));
     return __result->getJHybridOmniPlayerSpec();
   }
 

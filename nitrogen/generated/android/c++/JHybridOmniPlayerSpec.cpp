@@ -7,6 +7,16 @@
 
 #include "JHybridOmniPlayerSpec.hpp"
 
+// Forward declaration of `Source` to properly resolve imports.
+namespace margelo::nitro::omni { struct Source; }
+// Forward declaration of `VideoSrc` to properly resolve imports.
+namespace margelo::nitro::omni { struct VideoSrc; }
+// Forward declaration of `Subtitle` to properly resolve imports.
+namespace margelo::nitro::omni { struct Subtitle; }
+// Forward declaration of `Metadata` to properly resolve imports.
+namespace margelo::nitro::omni { struct Metadata; }
+// Forward declaration of `MixAudioMode` to properly resolve imports.
+namespace margelo::nitro::omni { enum class MixAudioMode; }
 // Forward declaration of `PlayerStatus` to properly resolve imports.
 namespace margelo::nitro::omni { enum class PlayerStatus; }
 // Forward declaration of `Track` to properly resolve imports.
@@ -14,13 +24,24 @@ namespace margelo::nitro::omni { struct Track; }
 // Forward declaration of `Rendition` to properly resolve imports.
 namespace margelo::nitro::omni { struct Rendition; }
 
+#include "Source.hpp"
+#include "JSource.hpp"
+#include "VideoSrc.hpp"
+#include <vector>
+#include "JVideoSrc.hpp"
+#include <string>
+#include <optional>
+#include <unordered_map>
+#include "Subtitle.hpp"
+#include "JSubtitle.hpp"
+#include "Metadata.hpp"
+#include "JMetadata.hpp"
+#include "MixAudioMode.hpp"
+#include "JMixAudioMode.hpp"
 #include "PlayerStatus.hpp"
 #include "JPlayerStatus.hpp"
 #include "Track.hpp"
-#include <vector>
 #include "JTrack.hpp"
-#include <string>
-#include <optional>
 #include "Rendition.hpp"
 #include "JRendition.hpp"
 
@@ -54,6 +75,15 @@ namespace margelo::nitro::omni {
   }
 
   // Properties
+  Source JHybridOmniPlayerSpec::getSource() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JSource>()>("getSource");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  void JHybridOmniPlayerSpec::setSource(const Source& source) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JSource> /* source */)>("setSource");
+    method(_javaPart, JSource::fromCpp(source));
+  }
   bool JHybridOmniPlayerSpec::getHasPrev() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("getHasPrev");
     auto __result = method(_javaPart);

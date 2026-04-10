@@ -1,4 +1,8 @@
+import type { Source } from "./source";
+
 export interface OmniPlayer {
+	source: Source;
+
 	play(): void;
 	pause(): void;
 	seekBy(offset: number): void;

@@ -50,6 +50,8 @@ namespace margelo::nitro::omni {
 
   public:
     // Properties
+    Source getSource() override;
+    void setSource(const Source& source) override;
     bool getHasPrev() override;
     bool getHasNext() override;
     PlayerStatus getStatus() override;

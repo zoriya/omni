@@ -14,6 +14,8 @@ namespace margelo::nitro::omni {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
+      prototype.registerHybridGetter("source", &HybridOmniPlayerSpec::getSource);
+      prototype.registerHybridSetter("source", &HybridOmniPlayerSpec::setSource);
       prototype.registerHybridGetter("hasPrev", &HybridOmniPlayerSpec::getHasPrev);
       prototype.registerHybridGetter("hasNext", &HybridOmniPlayerSpec::getHasNext);
       prototype.registerHybridGetter("status", &HybridOmniPlayerSpec::getStatus);

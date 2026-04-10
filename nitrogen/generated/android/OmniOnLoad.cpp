@@ -15,7 +15,6 @@
 #include <fbjni/fbjni.h>
 #include <NitroModules/HybridObjectRegistry.hpp>
 
-#include "JHybridOmniPlayerPropsSpec.hpp"
 #include "JHybridOmniPlayerSpec.hpp"
 #include "JHybridOmniPlayerFactorySpec.hpp"
 #include "JHybridOmniViewSpec.hpp"
@@ -52,7 +51,6 @@ void registerAllNatives() {
   using namespace margelo::nitro::omni;
 
   // Register native JNI methods
-  margelo::nitro::omni::JHybridOmniPlayerPropsSpec::CxxPart::registerNatives();
   margelo::nitro::omni::JHybridOmniPlayerSpec::CxxPart::registerNatives();
   margelo::nitro::omni::JHybridOmniPlayerFactorySpec::CxxPart::registerNatives();
   margelo::nitro::omni::JHybridOmniViewSpec::CxxPart::registerNatives();

@@ -13,6 +13,8 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `Source` to properly resolve imports.
+namespace margelo::nitro::omni { struct Source; }
 // Forward declaration of `PlayerStatus` to properly resolve imports.
 namespace margelo::nitro::omni { enum class PlayerStatus; }
 // Forward declaration of `Track` to properly resolve imports.
@@ -20,6 +22,7 @@ namespace margelo::nitro::omni { struct Track; }
 // Forward declaration of `Rendition` to properly resolve imports.
 namespace margelo::nitro::omni { struct Rendition; }
 
+#include "Source.hpp"
 #include "PlayerStatus.hpp"
 #include "Track.hpp"
 #include <vector>
@@ -53,6 +56,8 @@ namespace margelo::nitro::omni {
 
     public:
       // Properties
+      virtual Source getSource() = 0;
+      virtual void setSource(const Source& source) = 0;
       virtual bool getHasPrev() = 0;
       virtual bool getHasNext() = 0;
       virtual PlayerStatus getStatus() = 0;
