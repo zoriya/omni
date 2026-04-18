@@ -7,14 +7,29 @@
 
 #include "JHybridOmniEventMapSpec.hpp"
 
+// Forward declaration of `NumberProperty` to properly resolve imports.
+namespace margelo::nitro::omni { enum class NumberProperty; }
+// Forward declaration of `BoolProperty` to properly resolve imports.
+namespace margelo::nitro::omni { enum class BoolProperty; }
+// Forward declaration of `PlayerStatus` to properly resolve imports.
+namespace margelo::nitro::omni { enum class PlayerStatus; }
 // Forward declaration of `Track` to properly resolve imports.
 namespace margelo::nitro::omni { struct Track; }
 // Forward declaration of `Rendition` to properly resolve imports.
 namespace margelo::nitro::omni { struct Rendition; }
 
+#include "NumberProperty.hpp"
+#include "JNumberProperty.hpp"
 #include <functional>
-#include "JFunc_void.hpp"
+#include "JFunc_void_double.hpp"
 #include <NitroModules/JNICallable.hpp>
+#include "BoolProperty.hpp"
+#include "JBoolProperty.hpp"
+#include "JFunc_void_bool.hpp"
+#include "PlayerStatus.hpp"
+#include "JFunc_void_PlayerStatus.hpp"
+#include "JPlayerStatus.hpp"
+#include "JFunc_void.hpp"
 #include <string>
 #include "JFunc_void_std__string_std__string.hpp"
 #include "JFunc_void_std__string.hpp"
@@ -60,6 +75,30 @@ namespace margelo::nitro::omni {
   
 
   // Methods
+  void JHybridOmniEventMapSpec::addStateListener(NumberProperty key, const std::function<void(double /* value */)>& cb) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JNumberProperty> /* key */, jni::alias_ref<JFunc_void_double::javaobject> /* cb */)>("addStateListener_cxx");
+    method(_javaPart, JNumberProperty::fromCpp(key), JFunc_void_double_cxx::fromCpp(cb));
+  }
+  void JHybridOmniEventMapSpec::removeStateListener(NumberProperty key, const std::function<void(double /* value */)>& cb) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JNumberProperty> /* key */, jni::alias_ref<JFunc_void_double::javaobject> /* cb */)>("removeStateListener_cxx");
+    method(_javaPart, JNumberProperty::fromCpp(key), JFunc_void_double_cxx::fromCpp(cb));
+  }
+  void JHybridOmniEventMapSpec::addStateBoolListener(BoolProperty key, const std::function<void(bool /* value */)>& cb) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JBoolProperty> /* key */, jni::alias_ref<JFunc_void_bool::javaobject> /* cb */)>("addStateBoolListener_cxx");
+    method(_javaPart, JBoolProperty::fromCpp(key), JFunc_void_bool_cxx::fromCpp(cb));
+  }
+  void JHybridOmniEventMapSpec::removeStateBoolListener(BoolProperty key, const std::function<void(bool /* value */)>& cb) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JBoolProperty> /* key */, jni::alias_ref<JFunc_void_bool::javaobject> /* cb */)>("removeStateBoolListener_cxx");
+    method(_javaPart, JBoolProperty::fromCpp(key), JFunc_void_bool_cxx::fromCpp(cb));
+  }
+  void JHybridOmniEventMapSpec::addPlayerStatusListener(const std::function<void(PlayerStatus /* value */)>& cb) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void_PlayerStatus::javaobject> /* cb */)>("addPlayerStatusListener_cxx");
+    method(_javaPart, JFunc_void_PlayerStatus_cxx::fromCpp(cb));
+  }
+  void JHybridOmniEventMapSpec::removePlayerStatusListener(const std::function<void(PlayerStatus /* value */)>& cb) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void_PlayerStatus::javaobject> /* cb */)>("removePlayerStatusListener_cxx");
+    method(_javaPart, JFunc_void_PlayerStatus_cxx::fromCpp(cb));
+  }
   void JHybridOmniEventMapSpec::addOnEndListener(const std::function<void()>& cb) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void::javaobject> /* cb */)>("addOnEndListener_cxx");
     method(_javaPart, JFunc_void_cxx::fromCpp(cb));

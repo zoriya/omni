@@ -28,6 +28,60 @@ abstract class HybridOmniEventMapSpec: HybridObject() {
   
 
   // Methods
+  abstract fun addStateListener(key: NumberProperty, cb: (value: Double) -> Unit): Unit
+  
+  @DoNotStrip
+  @Keep
+  private fun addStateListener_cxx(key: NumberProperty, cb: Func_void_double): Unit {
+    val __result = addStateListener(key, cb)
+    return __result
+  }
+  
+  abstract fun removeStateListener(key: NumberProperty, cb: (value: Double) -> Unit): Unit
+  
+  @DoNotStrip
+  @Keep
+  private fun removeStateListener_cxx(key: NumberProperty, cb: Func_void_double): Unit {
+    val __result = removeStateListener(key, cb)
+    return __result
+  }
+  
+  abstract fun addStateBoolListener(key: BoolProperty, cb: (value: Boolean) -> Unit): Unit
+  
+  @DoNotStrip
+  @Keep
+  private fun addStateBoolListener_cxx(key: BoolProperty, cb: Func_void_bool): Unit {
+    val __result = addStateBoolListener(key, cb)
+    return __result
+  }
+  
+  abstract fun removeStateBoolListener(key: BoolProperty, cb: (value: Boolean) -> Unit): Unit
+  
+  @DoNotStrip
+  @Keep
+  private fun removeStateBoolListener_cxx(key: BoolProperty, cb: Func_void_bool): Unit {
+    val __result = removeStateBoolListener(key, cb)
+    return __result
+  }
+  
+  abstract fun addPlayerStatusListener(cb: (value: PlayerStatus) -> Unit): Unit
+  
+  @DoNotStrip
+  @Keep
+  private fun addPlayerStatusListener_cxx(cb: Func_void_PlayerStatus): Unit {
+    val __result = addPlayerStatusListener(cb)
+    return __result
+  }
+  
+  abstract fun removePlayerStatusListener(cb: (value: PlayerStatus) -> Unit): Unit
+  
+  @DoNotStrip
+  @Keep
+  private fun removePlayerStatusListener_cxx(cb: Func_void_PlayerStatus): Unit {
+    val __result = removePlayerStatusListener(cb)
+    return __result
+  }
+  
   abstract fun addOnEndListener(cb: () -> Unit): Unit
   
   @DoNotStrip

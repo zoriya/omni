@@ -1,17 +1,28 @@
 import type { HybridObject } from "react-native-nitro-modules";
 import type { OmniEvents } from "../types/events";
 import type {
-	// OmniPlayerState,
+	OmniPlayerState,
 	OmniPlayer as OmniPlayerT,
+	PlayerStatus,
 } from "../types/player";
 import type { Source } from "../types/source";
 
+export type NumberProperty = Exclude<
+	keyof OmniPlayerState,
+	"status" | "isPlaying" | "muted"
+>;
+export type BoolProperty = "isPlaying" | "muted";
+
 export interface OmniEventMap extends HybridObject<{ android: "kotlin" }> {
-	// addStateListener(
-	// 	key: keyof OmniPlayerState,
-	// 	cb: (value: number) => void,
-	// ): void;
-	// removeStateListener(cb: OmniEvents["end"]): void;
+	addStateListener(key: NumberProperty, cb: (value: number) => void): void;
+	removeStateListener(key: NumberProperty, cb: (value: number) => void): void;
+	addStateBoolListener(key: BoolProperty, cb: (value: boolean) => void): void;
+	removeStateBoolListener(
+		key: BoolProperty,
+		cb: (value: boolean) => void,
+	): void;
+	addPlayerStatusListener(cb: (value: PlayerStatus) => void): void;
+	removePlayerStatusListener(cb: (value: PlayerStatus) => void): void;
 
 	addOnEndListener(cb: OmniEvents["end"]): void;
 	removeOnEndListener(cb: OmniEvents["end"]): void;

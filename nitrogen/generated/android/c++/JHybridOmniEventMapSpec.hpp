@@ -54,6 +54,12 @@ namespace margelo::nitro::omni {
 
   public:
     // Methods
+    void addStateListener(NumberProperty key, const std::function<void(double /* value */)>& cb) override;
+    void removeStateListener(NumberProperty key, const std::function<void(double /* value */)>& cb) override;
+    void addStateBoolListener(BoolProperty key, const std::function<void(bool /* value */)>& cb) override;
+    void removeStateBoolListener(BoolProperty key, const std::function<void(bool /* value */)>& cb) override;
+    void addPlayerStatusListener(const std::function<void(PlayerStatus /* value */)>& cb) override;
+    void removePlayerStatusListener(const std::function<void(PlayerStatus /* value */)>& cb) override;
     void addOnEndListener(const std::function<void()>& cb) override;
     void removeOnEndListener(const std::function<void()>& cb) override;
     void addOnPrevListener(const std::function<void()>& cb) override;

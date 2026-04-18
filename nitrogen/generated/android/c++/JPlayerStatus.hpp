@@ -42,9 +42,6 @@ namespace margelo::nitro::omni {
     static jni::alias_ref<JPlayerStatus> fromCpp(PlayerStatus value) {
       static const auto clazz = javaClassStatic();
       switch (value) {
-        case PlayerStatus::ERROR:
-          static const auto fieldERROR = clazz->getStaticField<JPlayerStatus>("ERROR");
-          return clazz->getStaticFieldValue(fieldERROR);
         case PlayerStatus::IDLE:
           static const auto fieldIDLE = clazz->getStaticField<JPlayerStatus>("IDLE");
           return clazz->getStaticFieldValue(fieldIDLE);
@@ -54,6 +51,9 @@ namespace margelo::nitro::omni {
         case PlayerStatus::READYTOPLAY:
           static const auto fieldREADYTOPLAY = clazz->getStaticField<JPlayerStatus>("READYTOPLAY");
           return clazz->getStaticFieldValue(fieldREADYTOPLAY);
+        case PlayerStatus::ERROR:
+          static const auto fieldERROR = clazz->getStaticField<JPlayerStatus>("ERROR");
+          return clazz->getStaticFieldValue(fieldERROR);
         default:
           std::string stringValue = std::to_string(static_cast<int>(value));
           throw std::invalid_argument("Invalid enum value (" + stringValue + "!");

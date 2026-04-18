@@ -16,6 +16,9 @@
 #include <NitroModules/HybridObjectRegistry.hpp>
 
 #include "JHybridOmniEventMapSpec.hpp"
+#include "JFunc_void_double.hpp"
+#include "JFunc_void_bool.hpp"
+#include "JFunc_void_PlayerStatus.hpp"
 #include "JFunc_void.hpp"
 #include "JFunc_void_std__string_std__string.hpp"
 #include "JFunc_void_std__string.hpp"
@@ -59,6 +62,9 @@ void registerAllNatives() {
 
   // Register native JNI methods
   margelo::nitro::omni::JHybridOmniEventMapSpec::CxxPart::registerNatives();
+  margelo::nitro::omni::JFunc_void_double_cxx::registerNatives();
+  margelo::nitro::omni::JFunc_void_bool_cxx::registerNatives();
+  margelo::nitro::omni::JFunc_void_PlayerStatus_cxx::registerNatives();
   margelo::nitro::omni::JFunc_void_cxx::registerNatives();
   margelo::nitro::omni::JFunc_void_std__string_std__string_cxx::registerNatives();
   margelo::nitro::omni::JFunc_void_std__string_cxx::registerNatives();

@@ -14,6 +14,12 @@ namespace margelo::nitro::omni {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
+      prototype.registerHybridMethod("addStateListener", &HybridOmniEventMapSpec::addStateListener);
+      prototype.registerHybridMethod("removeStateListener", &HybridOmniEventMapSpec::removeStateListener);
+      prototype.registerHybridMethod("addStateBoolListener", &HybridOmniEventMapSpec::addStateBoolListener);
+      prototype.registerHybridMethod("removeStateBoolListener", &HybridOmniEventMapSpec::removeStateBoolListener);
+      prototype.registerHybridMethod("addPlayerStatusListener", &HybridOmniEventMapSpec::addPlayerStatusListener);
+      prototype.registerHybridMethod("removePlayerStatusListener", &HybridOmniEventMapSpec::removePlayerStatusListener);
       prototype.registerHybridMethod("addOnEndListener", &HybridOmniEventMapSpec::addOnEndListener);
       prototype.registerHybridMethod("removeOnEndListener", &HybridOmniEventMapSpec::removeOnEndListener);
       prototype.registerHybridMethod("addOnPrevListener", &HybridOmniEventMapSpec::addOnPrevListener);

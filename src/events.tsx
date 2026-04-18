@@ -24,8 +24,28 @@ export const useEvent = <Event extends keyof OmniEvents>(
 export const usePlayerState = <Key extends keyof OmniPlayerState>(
 	key: Key,
 ): OmniPlayerState[Key] => {
-	const player = usePlayer();
-	const [ret, setState] = useState(player[key]);
-	// TODO: find a way to listen to that.
+	const player = usePlayer() as OmniPlayer;
+	const [ret, setState] = useState<any>(player[key]);
+
+	useEffect(() => {
+		const em = player.eventMap;
+		switch (key) {
+			case "currentTime":
+			case "buffered":
+			case "duration":
+			case "playbackRate":
+			case "volume":
+				em.addStateListener(key, setState);
+				return () => em.removeStateListener(key, setState);
+			case "isPlaying":
+			case "muted":
+				em.addStateBoolListener(key, setState);
+				return () => em.removeStateBoolListener(key, setState);
+			case "status":
+				em.addPlayerStatusListener(setState);
+				return () => em.removePlayerStatusListener(setState);
+		}
+	}, [player, key]);
+
 	return ret;
 };
