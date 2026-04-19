@@ -40,7 +40,7 @@ int initialize(JavaVM* vm) {
 }
 
 struct JHybridOmniViewSpecImpl: public jni::JavaClass<JHybridOmniViewSpecImpl, JHybridOmniViewSpec::JavaPart> {
-  static constexpr auto kJavaDescriptor = "Ldev/zoriya/omni/HybridOmniView;";
+  static constexpr auto kJavaDescriptor = "Ldev/zoriya/omni/OmniView;";
   static std::shared_ptr<JHybridOmniViewSpec> create() {
     static const auto constructorFn = javaClassStatic()->getConstructor<JHybridOmniViewSpecImpl::javaobject()>();
     jni::local_ref<JHybridOmniViewSpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);
@@ -48,7 +48,7 @@ struct JHybridOmniViewSpecImpl: public jni::JavaClass<JHybridOmniViewSpecImpl, J
   }
 };
 struct JHybridOmniPlayerFactorySpecImpl: public jni::JavaClass<JHybridOmniPlayerFactorySpecImpl, JHybridOmniPlayerFactorySpec::JavaPart> {
-  static constexpr auto kJavaDescriptor = "Ldev/zoriya/omni/HybridOmniPlayerFactory;";
+  static constexpr auto kJavaDescriptor = "Ldev/zoriya/omni/OmniPlayerFactory;";
   static std::shared_ptr<JHybridOmniPlayerFactorySpec> create() {
     static const auto constructorFn = javaClassStatic()->getConstructor<JHybridOmniPlayerFactorySpecImpl::javaobject()>();
     jni::local_ref<JHybridOmniPlayerFactorySpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);

@@ -8,6 +8,8 @@
 	"react-native": "src/index",
 	"source": "src/index",
 	"scripts": {
+		"dev": "cd example && bun start",
+		"android": " cd example && bunx react-native run-android --no-packager --port 8082",
 		"typecheck": "tsc --noEmit",
 		"build": "bun run typecheck && bob build",
 		"codegen": "nitrogen --logLevel=\"debug\" && node post-script.js"

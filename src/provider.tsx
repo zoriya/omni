@@ -6,7 +6,7 @@ import type { Source } from "./types/source";
 import { useLazyRef } from "./utils/lazy-ref";
 
 const ProviderFactory = NitroModules.createHybridObject<OmniPlayerFactory>(
-	"OmniProviderFactory",
+	"OmniPlayerFactory",
 );
 
 const PlayerCtx = createContext<OmniPlayer>(null!);

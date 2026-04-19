@@ -27,6 +27,9 @@ class OmniPlayer : HybridOmniPlayerSpec() {
         player.setOptionString("demuxer-max-back-bytes", "75MiB")
         player.setOptionString("demuxer-readahead-secs", "20")
 
+        player.setOptionString("save-position-on-quit", "no")
+        player.setOptionString("ytdl", "no")
+
         // seek to keyframes
         player.setOptionString("hr-seek", "no")
 
