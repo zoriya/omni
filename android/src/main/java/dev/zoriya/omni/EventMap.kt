@@ -44,11 +44,11 @@ class EventMap(private val player: MPVLib) : HybridOmniEventMapSpec(), MPVLib.Ev
     }
 
     private fun computePlayerStatus(): PlayerStatus {
-        val idle = player.getPropertyBoolean("core-idle") ?: false
         val loading = player.getPropertyBoolean("paused-for-cache") ?: false
+        val idle = player.getPropertyBoolean("core-idle") ?: false
         return when {
-            idle -> PlayerStatus.IDLE
             loading -> PlayerStatus.LOADING
+            idle -> PlayerStatus.IDLE
             else -> PlayerStatus.READYTOPLAY
         }
     }

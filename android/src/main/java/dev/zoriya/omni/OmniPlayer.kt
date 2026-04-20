@@ -89,11 +89,11 @@ class OmniPlayer : HybridOmniPlayerSpec() {
     override val hasNext get() = source.metadata?.hasNext ?: false
     override val status: PlayerStatus
         get() {
-            val idle = player.getPropertyBoolean("core-idle") ?: false
             val loading = player.getPropertyBoolean("paused-for-cache") ?: false
+            val idle = player.getPropertyBoolean("core-idle") ?: false
             return when {
-                idle -> PlayerStatus.IDLE
                 loading -> PlayerStatus.LOADING
+                idle -> PlayerStatus.IDLE
                 else -> PlayerStatus.READYTOPLAY
             }
         }
