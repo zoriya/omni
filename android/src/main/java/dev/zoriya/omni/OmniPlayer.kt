@@ -1,10 +1,10 @@
 package dev.zoriya.omni
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.SurfaceHolder
+import androidx.core.content.ContextCompat
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -19,14 +19,19 @@ import androidx.core.net.toUri
 import androidx.media3.common.MediaItem.RequestMetadata
 import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.TrackSelectionOverride
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import dev.zoriya.omni.utils.ThreadHelper.mainThreadProperty
+import dev.zoriya.omni.utils.ThreadHelper.runOnMainThread
+import dev.zoriya.omni.utils.ThreadHelper.runOnMainThreadSync
 
 @SuppressLint("UnsafeOptInUsageError")
 class OmniPlayer : HybridOmniPlayerSpec() {
     private val ctx = NitroModules.applicationContext ?: throw Error("No Context available!")
-    val player = MpvPlayer(ctx)
+    val player: Player = runOnMainThreadSync { ExoPlayer.Builder(ctx).build() }
+    // MpvPlayer(ctx)
     override val eventMap = EventMap(player)
 
     override var showNotification: Boolean? = false
@@ -49,7 +54,7 @@ class OmniPlayer : HybridOmniPlayerSpec() {
         super.dispose()
 
         eventMap.dispose()
-        player.release()
+        runOnMainThread { player.release() }
     }
 
     private var currentSource: Source? = null
@@ -72,8 +77,8 @@ class OmniPlayer : HybridOmniPlayerSpec() {
             //                putLong(MpvPlayer.REQUEST_START_MS_KEY, (it.coerceAtLeast(0.0) * 1000.0).toLong())
             //            }
             //        }
-            player.setMediaItem(
-                MediaItem.Builder()
+
+            val item = MediaItem.Builder()
                     .setUri(src.uri)
                     .setMimeType(src.mimeType)
                     .setMediaId(src.uri)
@@ -101,108 +106,111 @@ class OmniPlayer : HybridOmniPlayerSpec() {
                             .build()
                     )
                     .build()
-            )
+            runOnMainThreadSync { player.setMediaItem(item) }
         }
 
     fun setSurface(holder: SurfaceHolder?) {
-        if (holder == null) {
-            player.clearVideoSurface()
-        } else {
-            player.setVideoSurfaceHolder(holder)
+        runOnMainThread {
+            if (holder == null) {
+                player.clearVideoSurface()
+            } else {
+                player.setVideoSurfaceHolder(holder)
+            }
         }
     }
 
-    override val hasPrev get() = player.hasPreviousMediaItem()
-    override val hasNext get() = player.hasNextMediaItem()
-    override val status: PlayerStatus
-        get() = when (player.playbackState) {
+    override val hasPrev by mainThreadProperty { player.hasPreviousMediaItem() }
+    override val hasNext by mainThreadProperty { player.hasNextMediaItem() }
+    override val status by mainThreadProperty {
+        when (player.playbackState) {
             Player.STATE_IDLE,
             Player.STATE_ENDED -> PlayerStatus.IDLE
             Player.STATE_BUFFERING -> PlayerStatus.LOADING
             else -> PlayerStatus.READYTOPLAY
         }
+    }
 
-    override val isPlaying get() = player.isPlaying
-    override var currentTime
-        get() = player.currentPosition.toDouble() / 1000.0
-        set(value) {
-            player.seekTo((value.coerceAtLeast(0.0) * 1000.0).toLong())
-        }
-    override val buffered
-        get() = (player.totalBufferedDuration.toDouble() / 1000.0).coerceAtLeast(0.0)
-    override val duration
-        get() = if (player.duration == C.TIME_UNSET) 0.0 else (player.duration.toDouble() / 1000.0).coerceAtLeast(
+    override val isPlaying by mainThreadProperty { player.isPlaying }
+    override var currentTime by mainThreadProperty(
+        get = { player.currentPosition.toDouble() / 1000.0 },
+        set = { value -> player.seekTo((value.coerceAtLeast(0.0) * 1000.0).toLong()) }
+    )
+
+    override val buffered by mainThreadProperty {
+        (player.totalBufferedDuration.toDouble() / 1000.0).coerceAtLeast(0.0)
+    }
+    override val duration by mainThreadProperty {
+        if (player.duration == C.TIME_UNSET) 0.0 else (player.duration.toDouble() / 1000.0).coerceAtLeast(
             0.0
         )
+    }
 
-    override var playbackRate
-        get() = player.playbackParameters.speed.toDouble()
-        set(value) {
-            player.setPlaybackSpeed(value.toFloat().coerceAtLeast(0f))
-        }
+    override var playbackRate by mainThreadProperty(
+        get = { player.playbackParameters.speed.toDouble() },
+        set = { value -> player.setPlaybackSpeed(value.toFloat().coerceAtLeast(0f)) }
+    )
 
-    var volumeMuted: Float? = null
-    override var muted: Boolean
-        get() = player.volume == 0.0f && volumeMuted != null
-        set(value) {
-            if (value) {
-                volumeMuted = player.volume
-                player.volume = 0.0f
-            } else {
-                player.volume = volumeMuted ?: 100.0f
-                volumeMuted = null
-            }
-        }
+    var _muted = false
+    override var muted by mainThreadProperty(
+        get = { _muted },
+        set = { value -> if (value) player.mute() else player.unmute() }
+    )
 
-    override var volume
-        get() = player.volume.toDouble()
-        set(value) {
-            player.volume = value.toFloat().coerceIn(0f, 1f)
-        }
+    override var volume by mainThreadProperty(
+        get = {player.volume.toDouble()},
+        set = { value -> player.volume = value.toFloat().coerceIn(0f, 1f) }
+    )
 
-    override val videos get() = tracksByType(C.TRACK_TYPE_VIDEO)
-    override val audios get() = tracksByType(C.TRACK_TYPE_AUDIO)
-    override val subtitles get() = tracksByType(C.TRACK_TYPE_TEXT)
+    override val videos by mainThreadProperty { tracksByType(C.TRACK_TYPE_VIDEO) }
+    override val audios by mainThreadProperty { tracksByType(C.TRACK_TYPE_AUDIO) }
+    override val subtitles by mainThreadProperty { tracksByType(C.TRACK_TYPE_TEXT) }
     override val rendition: Array<Rendition> get() = emptyArray()
 
     override fun play() {
-        player.play()
+        runOnMainThreadSync { player.play() }
+        if (showNotification == true) {
+            ContextCompat.startForegroundService(ctx, Intent(ctx, OmniPlayerService::class.java))
+        }
     }
 
     override fun pause() {
-        player.pause()
+        runOnMainThreadSync { player.pause() }
     }
 
     override fun seekBy(offset: Double) {
-        val target = (player.currentPosition.toDouble() / 1000.0) + offset
-        player.seekTo((target.coerceAtLeast(0.0) * 1000.0).toLong())
+        runOnMainThreadSync {
+            val target = (player.currentPosition.toDouble() / 1000.0) + offset
+            player.seekTo((target.coerceAtLeast(0.0) * 1000.0).toLong())
+        }
     }
 
     override fun playPrev() {
-        player.seekToPreviousMediaItem()
+        runOnMainThreadSync { player.seekToPreviousMediaItem() }
     }
 
     override fun playNext() {
-        player.seekToNextMediaItem()
+        runOnMainThreadSync { player.seekToNextMediaItem() }
     }
 
     override fun selectVideo(video: Track) {
-        selectTrack(C.TRACK_TYPE_VIDEO, video)
+        runOnMainThreadSync { selectTrack(C.TRACK_TYPE_VIDEO, video) }
     }
 
     override fun selectAudio(audio: Track) {
-        selectTrack(C.TRACK_TYPE_AUDIO, audio)
+        runOnMainThreadSync { selectTrack(C.TRACK_TYPE_AUDIO, audio) }
     }
 
     override fun selectSubtitle(subtitle: Track?) {
-        if (subtitle == null) {
-            player.trackSelectionParameters = player.trackSelectionParameters
-                .buildUpon()
-                .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
-                .build()
-            return
+        runOnMainThreadSync {
+            if (subtitle == null) {
+                player.trackSelectionParameters = player.trackSelectionParameters
+                    .buildUpon()
+                    .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
+                    .build()
+            } else {
+                selectTrack(C.TRACK_TYPE_TEXT, subtitle)
+            }
         }
-        selectTrack(C.TRACK_TYPE_TEXT, subtitle)
     }
 
     override fun selectRendition(rendition: Rendition?) {
@@ -211,7 +219,7 @@ class OmniPlayer : HybridOmniPlayerSpec() {
     private fun tracksByType(trackType: Int): Array<Track> {
         val groups = player.currentTracks.groups.filter { it.type == trackType }
         if (groups.isEmpty()) return emptyArray()
-//
+
         val result = ArrayList<Track>()
         for (group in groups) {
             val mediaGroup = group.mediaTrackGroup
@@ -254,9 +262,8 @@ class OmniPlayer : HybridOmniPlayerSpec() {
 
 @SuppressLint("UnsafeOptInUsageError")
 class OmniPlayerService : MediaSessionService() {
-    private val ctx = NitroModules.applicationContext ?: throw Error("No Context available!")
     private val player = OmniPlayer.notificationPlayer ?: throw Error("No player available")
-    var mediaSession: MediaSession = MediaSession.Builder(ctx, player).build()
+    var mediaSession: MediaSession = MediaSession.Builder(this, player).build()
 
     init {
         Log.e("omni", "service inited")
@@ -266,7 +273,7 @@ class OmniPlayerService : MediaSessionService() {
         Log.e("omni", "service created")
         super.onCreate()
         setMediaNotificationProvider(
-            DefaultMediaNotificationProvider.Builder(ctx).build()
+            DefaultMediaNotificationProvider.Builder(this).build()
         )
     }
 
@@ -281,9 +288,5 @@ class OmniPlayerService : MediaSessionService() {
     override fun onDestroy() {
         mediaSession.release()
         super.onDestroy()
-    }
-
-    override fun getApplicationContext(): Context? {
-        return NitroModules.applicationContext
     }
 }

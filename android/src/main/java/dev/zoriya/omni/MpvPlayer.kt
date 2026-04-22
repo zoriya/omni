@@ -48,9 +48,14 @@ class MpvPlayer(ctx: Context) : BasePlayer(), MPVLib.EventObserver {
         listener.onEvents(this, Player.Events(flags))
     }
 
-    private fun notifyListeners(eventFlag: Int, callback: (Player.Listener) -> Unit) {
+    private fun notifyListeners(eventFlag: Int, callback: (Player.Listener) -> Unit) =
+        notifyListeners(arrayOf(eventFlag), callback)
+
+    private fun notifyListeners(eventFlag: Array<Int>, callback: (Player.Listener) -> Unit) {
         val notifyAction = {
-            listeners.queueEvent(eventFlag, callback)
+            for (event in eventFlag) {
+                listeners.queueEvent(event, callback)
+            }
             listeners.flushEvents()
         }
         if (Looper.myLooper() == applicationLooper) {
@@ -141,6 +146,7 @@ class MpvPlayer(ctx: Context) : BasePlayer(), MPVLib.EventObserver {
         startIndex: Int,
         startPositionMs: Long
     ) {
+        val prev = currentMediaItem
         val target = when {
             mediaItems.isEmpty() -> null
             startIndex in mediaItems.indices -> mediaItems[startIndex]
@@ -165,6 +171,26 @@ class MpvPlayer(ctx: Context) : BasePlayer(), MPVLib.EventObserver {
                 }
             }
         }
+
+        val events = arrayListOf(
+            EVENT_TIMELINE_CHANGED,
+            EVENT_MEDIA_METADATA_CHANGED,
+            EVENT_PLAYLIST_METADATA_CHANGED
+        )
+        if (prev != currentMediaItem) {
+            events.add(EVENT_MEDIA_ITEM_TRANSITION)
+        }
+        notifyListeners(events.toTypedArray()) {
+            it.onTimelineChanged(currentTimeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED)
+            it.onMediaMetadataChanged(mediaMetadata)
+            it.onPlaylistMetadataChanged(playlistMetadata)
+            if (prev != currentMediaItem) {
+                it.onMediaItemTransition(
+                    currentMediaItem,
+                    MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED
+                )
+            }
+        }
     }
 
     override fun addMediaItems(
@@ -179,9 +205,27 @@ class MpvPlayer(ctx: Context) : BasePlayer(), MPVLib.EventObserver {
     }
 
     override fun removeMediaItems(fromIndex: Int, toIndex: Int) {
+        val prev = currentMediaItem
         currentMediaItem = null
         playlistMetadata = MediaMetadata.EMPTY
         mpv.command(arrayOf("stop"))
+
+        var events = arrayListOf(
+            EVENT_TIMELINE_CHANGED,
+            EVENT_MEDIA_METADATA_CHANGED,
+            EVENT_PLAYLIST_METADATA_CHANGED
+        )
+        if (prev != null) {
+            events.add(EVENT_MEDIA_ITEM_TRANSITION)
+        }
+        notifyListeners(events.toTypedArray()) {
+            it.onTimelineChanged(currentTimeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED)
+            it.onMediaMetadataChanged(mediaMetadata)
+            it.onPlaylistMetadataChanged(playlistMetadata)
+            if (prev != null) {
+                it.onMediaItemTransition(null, MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED)
+            }
+        }
     }
 
     override fun getAvailableCommands(): Player.Commands = availableCommands
@@ -431,6 +475,14 @@ class MpvPlayer(ctx: Context) : BasePlayer(), MPVLib.EventObserver {
         return ((mpv.getPropertyDouble("volume") ?: 100.0).coerceIn(0.0, 100.0) / 100.0).toFloat()
     }
 
+    override fun mute() {
+        mpv.setPropertyBoolean("mute", true)
+    }
+
+    override fun unmute() {
+        mpv.setPropertyBoolean("mute", false)
+    }
+
     override fun clearVideoSurface() {
         mpv.setOptionString("vo", "null")
         mpv.setOptionString("force-window", "no")
@@ -521,14 +573,11 @@ class MpvPlayer(ctx: Context) : BasePlayer(), MPVLib.EventObserver {
                     it.onPlaybackStateChanged(STATE_BUFFERING)
                 }
 
-            MPVLib.MpvEvent.MPV_EVENT_FILE_LOADED -> {
-                notifyListeners(EVENT_PLAYBACK_STATE_CHANGED) {
+            MPVLib.MpvEvent.MPV_EVENT_FILE_LOADED ->
+                notifyListeners(arrayOf(EVENT_PLAYBACK_STATE_CHANGED, EVENT_IS_PLAYING_CHANGED)) {
                     it.onPlaybackStateChanged(STATE_READY)
-                }
-                notifyListeners(EVENT_IS_PLAYING_CHANGED) {
                     it.onIsPlayingChanged(playWhenReady)
                 }
-            }
 
             MPVLib.MpvEvent.MPV_EVENT_SEEK,
             MPVLib.MpvEvent.MPV_EVENT_PLAYBACK_RESTART -> {
@@ -609,17 +658,14 @@ class MpvPlayer(ctx: Context) : BasePlayer(), MPVLib.EventObserver {
 
     override fun eventProperty(property: String, value: Boolean) {
         when (property) {
-            "pause" -> {
-                notifyListeners(EVENT_PLAY_WHEN_READY_CHANGED) {
+            "pause" ->
+                notifyListeners(arrayOf(EVENT_PLAY_WHEN_READY_CHANGED, EVENT_IS_PLAYING_CHANGED)) {
                     it.onPlayWhenReadyChanged(
                         !value,
                         PLAY_WHEN_READY_CHANGE_REASON_REMOTE
                     )
-                }
-                notifyListeners(EVENT_IS_PLAYING_CHANGED) {
                     it.onIsPlayingChanged(!value)
                 }
-            }
 
             "core-idle", "eof-reached" ->
                 notifyListeners(EVENT_PLAYBACK_STATE_CHANGED) {
@@ -627,11 +673,8 @@ class MpvPlayer(ctx: Context) : BasePlayer(), MPVLib.EventObserver {
                 }
 
             "paused-for-cache" -> {
-                notifyListeners(EVENT_IS_LOADING_CHANGED) {
+                notifyListeners(arrayOf(EVENT_IS_LOADING_CHANGED, EVENT_PLAYBACK_STATE_CHANGED)) {
                     it.onIsLoadingChanged(value)
-                }
-
-                notifyListeners(EVENT_PLAYBACK_STATE_CHANGED) {
                     it.onPlaybackStateChanged(getPlaybackState())
                 }
             }

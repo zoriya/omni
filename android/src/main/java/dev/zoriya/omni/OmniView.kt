@@ -77,7 +77,8 @@ class OmniView(val context: ThemedReactContext) : HybridOmniViewSpec(), SurfaceH
         format: Int,
         width: Int,
         height: Int
-    ) { }
+    ) {
+    }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         surfaceReady = false
