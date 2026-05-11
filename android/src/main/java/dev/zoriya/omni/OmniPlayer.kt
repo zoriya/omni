@@ -4,6 +4,7 @@ import android.R
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
+import android.media.metrics.TrackChangeEvent.TRACK_TYPE_VIDEO
 import android.util.Log
 import android.view.SurfaceHolder
 import androidx.media3.common.C
@@ -20,14 +21,13 @@ import androidx.core.net.toUri
 import androidx.media3.common.MediaItem.RequestMetadata
 import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.TrackSelectionOverride
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import dev.zoriya.omni.utils.ThreadHelper.mainThreadProperty
 import dev.zoriya.omni.utils.ThreadHelper.runOnMainThread
 import dev.zoriya.omni.utils.ThreadHelper.runOnMainThreadSync
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.internal.synchronized
 
 @SuppressLint("UnsafeOptInUsageError")
 class OmniPlayer : HybridOmniPlayerSpec() {
@@ -156,19 +156,13 @@ class OmniPlayer : HybridOmniPlayerSpec() {
         }
     }
 
-    fun updateSurfaceSize(width: Int, height: Int) {
-        if (width <= 0 || height <= 0) return
-        runOnMainThread {
-            (player as? MpvPlayer)?.updateSurfaceSize(width, height)
-        }
-    }
-
     override val hasPrev: Boolean get() = currentSource?.metadata?.hasPrev == true
     override val hasNext: Boolean get() = currentSource?.metadata?.hasNext == true
     override val status by mainThreadProperty {
         when (player.playbackState) {
             Player.STATE_IDLE,
             Player.STATE_ENDED -> PlayerStatus.IDLE
+
             Player.STATE_BUFFERING -> PlayerStatus.LOADING
             else -> PlayerStatus.READYTOPLAY
         }
@@ -208,7 +202,7 @@ class OmniPlayer : HybridOmniPlayerSpec() {
     override val videos by mainThreadProperty { tracksByType(C.TRACK_TYPE_VIDEO) }
     override val audios by mainThreadProperty { tracksByType(C.TRACK_TYPE_AUDIO) }
     override val subtitles by mainThreadProperty { tracksByType(C.TRACK_TYPE_TEXT) }
-    override val rendition: Array<Rendition> get() = emptyArray()
+    override val rendition by mainThreadProperty { getRenditions() }
 
     override fun play() {
         runOnMainThreadSync { player.play() }
@@ -234,11 +228,23 @@ class OmniPlayer : HybridOmniPlayerSpec() {
     }
 
     override fun selectVideo(video: Track) {
-        runOnMainThreadSync { selectTrack(C.TRACK_TYPE_VIDEO, video) }
+        runOnMainThreadSync {
+            player.trackSelectionParameters = player.trackSelectionParameters
+                .buildUpon()
+                .setPreferredVideoLanguage(video.language)
+                .setPreferredVideoLabels(*(video.label?.let { arrayOf(it) } ?: emptyArray()))
+                .build()
+        }
     }
 
     override fun selectAudio(audio: Track) {
-        runOnMainThreadSync { selectTrack(C.TRACK_TYPE_AUDIO, audio) }
+        runOnMainThreadSync {
+            player.trackSelectionParameters = player.trackSelectionParameters
+                .buildUpon()
+                .setPreferredAudioLanguage(audio.language)
+                .setPreferredAudioLabels(*(audio.label?.let { arrayOf(it) } ?: emptyArray()))
+                .build()
+        }
     }
 
     override fun selectSubtitle(subtitle: Track?) {
@@ -249,50 +255,78 @@ class OmniPlayer : HybridOmniPlayerSpec() {
                     .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
                     .build()
             } else {
-                selectTrack(C.TRACK_TYPE_TEXT, subtitle)
+                player.trackSelectionParameters = player.trackSelectionParameters
+                    .buildUpon()
+                    .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+                    .setPreferredTextLanguage(subtitle.language)
+                    .setPreferredTextLabels(*(subtitle.label?.let { arrayOf(it) } ?: emptyArray()))
+                    .build()
             }
         }
-    }
-
-    override fun selectRendition(rendition: Rendition?) {
     }
 
     private fun tracksByType(trackType: Int): Array<Track> {
         val groups = player.currentTracks.groups.filter { it.type == trackType }
         if (groups.isEmpty()) return emptyArray()
 
-        val result = ArrayList<Track>()
-        for (group in groups) {
-            val mediaGroup = group.mediaTrackGroup
-            for (i in 0 until group.length) {
-                val format = group.getTrackFormat(i)
-                result.add(
-                    Track(
-                        id = format.id ?: mediaGroup.id,
-                        label = format.label,
-                        language = format.language,
-                        selected = group.isTrackSelected(i)
-                    )
+        return groups.map {
+            it.getTrackFormat(0).run {
+                Track(
+                    id = it.mediaTrackGroup.id,
+                    label = this.label,
+                    language = this.language,
+                    selected = it.isSelected
                 )
             }
+        }.toTypedArray()
+    }
+
+    private fun getRenditions(): Array<Rendition> {
+        val group =
+            player.currentTracks.groups.firstOrNull { it.isSelected && it.type == C.TRACK_TYPE_VIDEO }
+                ?: return emptyArray()
+
+        val result = ArrayList<Rendition>()
+        for (i in 0 until group.length) {
+            val format = group.getTrackFormat(i)
+            result.add(
+                Rendition(
+                    id = format.id ?: group.mediaTrackGroup.id,
+                    width = format.width.toDouble().coerceAtLeast(0.0),
+                    height = format.height.toDouble().coerceAtLeast(0.0),
+                    bitrate = format.bitrate.toDouble().coerceAtLeast(0.0),
+                    selected = group.isTrackSelected(i)
+                )
+            )
         }
         return result.toTypedArray()
     }
 
-    private fun selectTrack(trackType: Int, track: Track) {
-        val groups = player.currentTracks.groups.filter { it.type == trackType }
-        for (group in groups) {
-            for (i in 0 until group.length) {
-                val formatId = group.getTrackFormat(i).id ?: group.mediaTrackGroup.id
-                if (formatId != track.id) continue
-
+    override fun selectRendition(rendition: Rendition?) {
+        runOnMainThreadSync {
+            if (rendition == null) {
                 player.trackSelectionParameters = player.trackSelectionParameters
                     .buildUpon()
-                    .setTrackTypeDisabled(trackType, false)
-                    .setOverrideForType(TrackSelectionOverride(group.mediaTrackGroup, i))
+                    .clearOverridesOfType(C.TRACK_TYPE_VIDEO)
                     .build()
-                return
+                return@runOnMainThreadSync
             }
+
+            val group =
+                player.currentTracks.groups.find { it.isSelected && it.type == C.TRACK_TYPE_VIDEO }
+                    ?: return@runOnMainThreadSync
+
+            for (i in 0 until group.length) {
+                val format = group.getTrackFormat(i)
+                val formatId = format.id ?: group.mediaTrackGroup.id
+                if (formatId == rendition.id) continue
+
+                player.trackSelectionParameters = player.trackSelectionParameters
+                        .buildUpon()
+                        .setOverrideForType(TrackSelectionOverride(group.mediaTrackGroup, i))
+                        .build()
+                    return@runOnMainThreadSync
+                }
         }
     }
 
