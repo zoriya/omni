@@ -1,4 +1,8 @@
-# OSX
+example/android/caches
+example/android/wrapper
+example/android/daemon
+example/android/native
+example/android/android
 #
 .DS_Store
 

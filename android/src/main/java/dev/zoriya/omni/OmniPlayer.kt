@@ -32,7 +32,7 @@ class OmniPlayer : HybridOmniPlayerSpec() {
     private val ctx = NitroModules.applicationContext ?: throw Error("No Context available!")
     val player: Player = runOnMainThreadSync {
         // ExoPlayer.Builder(ctx).build()
-        MpvPlayer(ctx)
+        VlcPlayer(ctx)
     }
     override val eventMap = EventMap(player)
 
@@ -103,15 +103,9 @@ class OmniPlayer : HybridOmniPlayerSpec() {
     ): MediaItem {
         //        val headers = Bundle().apply {
         //            putStringArrayList(
-        //                MpvPlayer.REQUEST_HEADER_NAMES_KEY,
-        //                ArrayList(src.headers.keys)
-        //            )
-        //            putStringArrayList(
-        //                MpvPlayer.REQUEST_HEADER_VALUES_KEY,
-        //                ArrayList(src.headers.values)
-        //            )
-        //            source.startTime?.let {
-        //                putLong(MpvPlayer.REQUEST_START_MS_KEY, (it.coerceAtLeast(0.0) * 1000.0).toLong())
+        //                VlcPlayer.REQUEST_HEADER_NAMES_KEY,
+        //                VlcPlayer.REQUEST_HEADER_VALUES_KEY,
+        //                putLong(VlcPlayer.REQUEST_START_MS_KEY, (it.coerceAtLeast(0.0) * 1000.0).toLong())
         //            }
         //        }
         return MediaItem.Builder()
