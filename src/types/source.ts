@@ -14,7 +14,7 @@ export interface VideoSrc {
 	mimeType?: string;
 	// header sends with xhr requests (especially useful for HLS)
 	// might not be available depending on browser/platform.
-	headers: Record<string, string>;
+	headers: Record<string, string | undefined>;
 }
 
 export interface Subtitle {

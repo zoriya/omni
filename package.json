@@ -57,26 +57,26 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"dependencies": {
-		"@expo/config-plugins": "^10.0.2",
+		"@expo/config-plugins": "^57.0.3",
 		"@videojs/react": "10.0.0-beta.25",
-		"jassub": "^2.5.6",
+		"jassub": "^2.5.7",
 		"libpgs": "^0.8.1"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.10",
-		"@types/jest": "^29.5.12",
-		"@types/react": "19.2.0",
-		"nitrogen": "0.35.3",
-		"react": "19.2.3",
-		"react-native": "0.84.1",
-		"react-native-builder-bob": "^0.40.18",
-		"react-native-nitro-modules": "0.35.3",
-		"typescript": "^5.8.3"
+		"@biomejs/biome": "2.5.3",
+		"@types/jest": "^30.0.0",
+		"@types/react": "19.2.17",
+		"nitrogen": "0.36.1",
+		"react": "19.2.7",
+		"react-native": "0.86.0",
+		"react-native-builder-bob": "^0.43.0",
+		"react-native-nitro-modules": "0.36.1",
+		"typescript": "^7.0.2"
 	},
 	"peerDependencies": {
-		"react": "*",
-		"react-native": "*",
-		"react-native-nitro-modules": "*"
+		"react": "19.2.7",
+		"react-native": "0.86.0",
+		"react-native-nitro-modules": "0.36.1"
 	},
 	"react-native-builder-bob": {
 		"source": "src",

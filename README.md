@@ -1,4 +1,4 @@
-# react-native-omni
+# omni
 
 A library to have real players on android and web. It uses VLC on android and
 videojs v10 on the web (ios not implemented yet, PR welcome)

@@ -108,7 +108,7 @@ export const OmniView = ({
 			hlsJs: {
 				xhrSetup: (xhr: XMLHttpRequest) => {
 					for (const [key, value] of Object.entries(headers)) {
-						xhr.setRequestHeader(key, value);
+						if (value) xhr.setRequestHeader(key, value);
 					}
 				},
 			},
