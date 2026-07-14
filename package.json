@@ -1,6 +1,6 @@
 {
 	"name": "react-native-omni",
-	"version": "0.1.0",
+	"version": "0.0.0-development",
 	"description": "video player using vlc and videojs",
 	"main": "./lib/commonjs/index.js",
 	"module": "./lib/module/index.js",
@@ -14,7 +14,8 @@
 		"typecheck": "tsc --noEmit && tsc -p plugin/tsconfig.json --noEmit",
 		"build:plugin": "tsc -p plugin/tsconfig.json",
 		"build": "bun run typecheck && bob build && bun run build:plugin",
-		"codegen": "nitrogen --logLevel=\"debug\" && node post-script.js"
+		"codegen": "nitrogen --logLevel=\"debug\" && node post-script.js",
+		"release": "semantic-release"
 	},
 	"keywords": [
 		"react-native",
@@ -47,11 +48,11 @@
 	"workspaces": [
 		"example"
 	],
-	"repository": "https://github.com/zoeroux/react-native-omni.git",
+	"repository": "https://github.com/zoriya/react-native-omni.git",
 	"author": "Zoe Roux",
 	"license": "MIT",
-	"bugs": "https://github.com/zoeroux/react-native-omni/issues",
-	"homepage": "https://github.com/zoeroux/react-native-omni#readme",
+	"bugs": "https://github.com/zoriya/react-native-omni/issues",
+	"homepage": "https://github.com/zoriya/react-native-omni#readme",
 	"publishConfig": {
 		"access": "public",
 		"registry": "https://registry.npmjs.org/"
@@ -71,6 +72,7 @@
 		"react-native": "0.86.0",
 		"react-native-builder-bob": "^0.43.0",
 		"react-native-nitro-modules": "0.36.1",
+		"semantic-release": "^25.0.7",
 		"typescript": "^7.0.2"
 	},
 	"peerDependencies": {

@@ -1,6 +1,9 @@
 name: Release
 
 on:
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 permissions:
@@ -28,12 +31,15 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+      # OIDC trusted publishing requires npm CLI >= 11.5.1; ubuntu-latest ships an older one.
+      - name: Upgrade npm CLI (for OIDC trusted publishing)
+        run: npm install -g npm@latest
       - name: Cache bun dependencies
         id: bun-cache
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
             ${{ runner.os }}-bun-
 
@@ -45,9 +51,9 @@ jobs:
 
       - name: Release
         env:
+          # No NPM_TOKEN: auth happens via OIDC trusted publishing (id-token: write above).
+          # Provenance is generated automatically, so NPM_CONFIG_PROVENANCE is not needed.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
           GIT_AUTHOR_NAME: ${{ github.actor }}
           GIT_AUTHOR_EMAIL: '${{ github.actor }}@users.noreply.github.com'
           GIT_COMMITTER_NAME: ${{ github.actor }}
