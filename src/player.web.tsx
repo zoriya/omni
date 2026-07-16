@@ -7,6 +7,7 @@ import {
 } from "@videojs/react";
 import { stateMapper } from "./events.web";
 import type {
+	CastStatus,
 	OmniPlayer,
 	PlayerStatus,
 	Rendition,
@@ -49,6 +50,14 @@ export class WebOmniPlayer implements OmniPlayer {
 
 	constructor(store: VideoPlayerStore) {
 		this._store = store;
+	}
+
+	get castStatus(): CastStatus {
+		return stateMapper.castStatus.mapper(this._store.state);
+	}
+
+	toggleCastStatus(): void {
+		this._store.state.toggleRemotePlayback();
 	}
 
 	_source: Source | null = null;

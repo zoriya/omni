@@ -2,6 +2,7 @@ export { useEvent, usePlayerState } from "./events";
 export { OmniProvider, usePlayer } from "./provider";
 export type { OmniEvents } from "./types/events";
 export type {
+	CastStatus,
 	OmniPlayer,
 	OmniPlayerState,
 	PlayerStatus,

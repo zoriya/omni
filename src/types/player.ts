@@ -5,6 +5,8 @@ export interface OmniPlayer extends OmniPlayerState {
 	pause(): void;
 	seekBy(offset: number): void;
 
+	toggleCastStatus(): void;
+
 	// trigger the prev/next event manually, the user has to implement the event
 	playPrev(): void;
 	playNext(): void;
@@ -32,9 +34,16 @@ export interface OmniPlayerState {
 	volume: number;
 	muted: boolean;
 	readonly isAutoQuality: boolean;
+	readonly castStatus: CastStatus;
 }
 
 export type PlayerStatus = "idle" | "loading" | "readyToPlay" | "error";
+
+export type CastStatus =
+	| "connecting"
+	| "connected"
+	| "available"
+	| "unavailable";
 
 export interface Track {
 	readonly id: string;

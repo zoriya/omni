@@ -6,6 +6,7 @@ import {
 	selectPlayback,
 	selectPlaybackRate,
 	selectQuality,
+	selectRemotePlayback,
 	selectTextTrack,
 	selectTime,
 	selectVolume,
@@ -176,6 +177,13 @@ export const stateMapper = {
 	...createMapper("isAutoQuality", selectQuality, (q) => {
 		if (!q) return true;
 		return !q.videoRenditionList.some((r) => r.selected);
+	}),
+	...createMapper("castStatus", selectRemotePlayback, (r) => {
+		if (!r) return "unavailable";
+		if (r.remotePlaybackState === "connecting") return "connecting";
+		if (r.remotePlaybackState === "connected") return "connected";
+		if (r.remotePlaybackAvailability === "available") return "available";
+		return "unavailable";
 	}),
 };
 
