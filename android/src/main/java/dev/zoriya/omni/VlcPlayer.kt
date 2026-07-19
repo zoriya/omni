@@ -2,12 +2,16 @@ package dev.zoriya.omni
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.TextureView
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.BasePlayer
@@ -43,9 +47,22 @@ import org.videolan.libvlc.interfaces.IMedia.VideoTrack
 import org.videolan.libvlc.interfaces.IVLCVout
 
 @SuppressLint("UnsafeOptInUsageError")
-class VlcPlayer(ctx: Context) : BasePlayer(), MediaPlayer.EventListener {
+class VlcPlayer(ctx: Context) :
+    BasePlayer(),
+    MediaPlayer.EventListener,
+    AudioManager.OnAudioFocusChangeListener {
     private val applicationLooper: Looper = Looper.getMainLooper()
     private val applicationHandler = Handler(applicationLooper)
+
+    private val audioManager =
+        ContextCompat.getSystemService(ctx.applicationContext, AudioManager::class.java)
+    private var audioFocusRequest: AudioFocusRequest? = null
+
+    private var hasAudioFocus = false
+    private var handleAudioFocus = false
+    private var mediaAudioAttributes: AudioAttributes = AudioAttributes.DEFAULT
+    private var playbackSuppression = PLAYBACK_SUPPRESSION_REASON_NONE
+
     private val listeners = ListenerSet<Player.Listener>(
         applicationLooper,
         Clock.DEFAULT
@@ -120,6 +137,7 @@ class VlcPlayer(ctx: Context) : BasePlayer(), MediaPlayer.EventListener {
             }
 
             MediaPlayer.Event.Playing -> {
+                if (!requestAudioFocus()) applicationHandler.post { player.pause() }
                 notifyListeners(
                     arrayOf(
                         EVENT_TIMELINE_CHANGED,
@@ -147,19 +165,24 @@ class VlcPlayer(ctx: Context) : BasePlayer(), MediaPlayer.EventListener {
             }
 
             MediaPlayer.Event.Stopped -> {
+                abandonAudioFocus()
                 notifyListeners(EVENT_PLAYBACK_STATE_CHANGED) {
                     it.onPlaybackStateChanged(STATE_IDLE)
                 }
             }
 
             MediaPlayer.Event.EndReached -> {
+                abandonAudioFocus()
                 notifyListeners(EVENT_PLAYBACK_STATE_CHANGED) {
                     it.onPlaybackStateChanged(STATE_ENDED)
                 }
             }
 
             MediaPlayer.Event.Buffering -> {
-                cachedBufferedPosition = (event.buffering * getDuration()).toLong()
+                val dur = getDuration()
+                if (dur != TIME_UNSET) {
+                    cachedBufferedPosition = (event.buffering / 100.0 * dur).toLong()
+                }
                 notifyListeners(arrayOf(EVENT_IS_LOADING_CHANGED, EVENT_PLAYBACK_STATE_CHANGED)) {
                     it.onIsLoadingChanged(true)
                     it.onPlaybackStateChanged(STATE_BUFFERING)
@@ -193,7 +216,7 @@ class VlcPlayer(ctx: Context) : BasePlayer(), MediaPlayer.EventListener {
                         INDEX_UNSET,
                         INDEX_UNSET
                     )
-                    it.onPositionDiscontinuity(position, position, DISCONTINUITY_REASON_SEEK)
+                    it.onPositionDiscontinuity(position, position, DISCONTINUITY_REASON_INTERNAL)
                 }
             }
 
@@ -211,6 +234,78 @@ class VlcPlayer(ctx: Context) : BasePlayer(), MediaPlayer.EventListener {
                 }
             }
         }
+    }
+
+    override fun onAudioFocusChange(focusChange: Int) {
+        when (focusChange) {
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                hasAudioFocus = true
+                if (playbackSuppression != PLAYBACK_SUPPRESSION_REASON_NONE) {
+                    setPlaybackSuppression(PLAYBACK_SUPPRESSION_REASON_NONE)
+                    player.play()
+                }
+            }
+
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                hasAudioFocus = false
+                setPlaybackSuppression(PLAYBACK_SUPPRESSION_REASON_NONE)
+                player.pause()
+                notifyListeners(arrayOf(EVENT_PLAY_WHEN_READY_CHANGED, EVENT_IS_PLAYING_CHANGED)) {
+                    it.onPlayWhenReadyChanged(false, PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS)
+                    it.onIsPlayingChanged(false)
+                }
+            }
+
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                setPlaybackSuppression(PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS)
+                player.pause()
+            }
+        }
+    }
+
+    private fun setPlaybackSuppression(reason: Int) {
+        if (playbackSuppression == reason) return
+        playbackSuppression = reason
+        notifyListeners(EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED) {
+            it.onPlaybackSuppressionReasonChanged(reason)
+        }
+    }
+
+    private fun requestAudioFocus(): Boolean {
+        val audioManager = audioManager ?: return true
+        if (!handleAudioFocus) {
+            abandonAudioFocus()
+            return true
+        }
+        if (hasAudioFocus) return true
+
+        val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val request = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                .setAudioAttributes(mediaAudioAttributes.platformAudioAttributes)
+                .setOnAudioFocusChangeListener(this, applicationHandler)
+                .build()
+            audioFocusRequest = request
+            audioManager.requestAudioFocus(request)
+        } else {
+            @Suppress("DEPRECATION")
+            audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+        }
+        hasAudioFocus = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        return hasAudioFocus
+    }
+
+    private fun abandonAudioFocus() {
+        val audioManager = audioManager ?: return
+        if (!hasAudioFocus && audioFocusRequest == null) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
+            audioFocusRequest = null
+        } else {
+            @Suppress("DEPRECATION")
+            audioManager.abandonAudioFocus(this)
+        }
+        hasAudioFocus = false
     }
 
     override fun getApplicationLooper(): Looper = applicationLooper
@@ -336,7 +431,7 @@ class VlcPlayer(ctx: Context) : BasePlayer(), MediaPlayer.EventListener {
             else -> STATE_READY
         }
 
-    override fun getPlaybackSuppressionReason(): Int = PLAYBACK_SUPPRESSION_REASON_NONE
+    override fun getPlaybackSuppressionReason(): Int = playbackSuppression
 
     override fun getPlayerError(): PlaybackException? = playerError
 
@@ -368,6 +463,7 @@ class VlcPlayer(ctx: Context) : BasePlayer(), MediaPlayer.EventListener {
         if (targetIndex != currentMediaItemIndex) {
             userInitiatedTransition = true
             setMediaItems(mediaItems, targetIndex, positionMs)
+            player.play()
             return
         }
 
@@ -391,6 +487,7 @@ class VlcPlayer(ctx: Context) : BasePlayer(), MediaPlayer.EventListener {
 
     override fun release() {
         player.setEventListener(null)
+        abandonAudioFocus()
         player.stop()
         clearVideoSurface()
         player.release()
@@ -651,20 +748,30 @@ class VlcPlayer(ctx: Context) : BasePlayer(), MediaPlayer.EventListener {
 
     override fun getContentBufferedPosition() = getBufferedPosition()
 
-    override fun getAudioAttributes(): AudioAttributes = AudioAttributes.DEFAULT
+    override fun getAudioAttributes(): AudioAttributes = mediaAudioAttributes
+
+    private var volumeBeforeMute: Float = 1f
 
     override fun setVolume(volume: Float) {
-        player.volume = (volume * 100).toInt()
+        player.volume = (volume.coerceIn(0f, 1f) * 100).toInt()
+        notifyVolumeChanged()
     }
 
-    override fun getVolume(): Float = player.volume / 100f
+    override fun getVolume(): Float = (player.volume / 100f).coerceIn(0f, 1f)
 
     override fun mute() {
+        val current = getVolume()
+        if (current > 0f) volumeBeforeMute = current
         player.volume = 0
+        notifyVolumeChanged()
     }
 
     override fun unmute() {
-        player.volume = 100
+        setVolume(volumeBeforeMute.takeIf { it > 0f } ?: 1f)
+    }
+
+    private fun notifyVolumeChanged() {
+        notifyListeners(EVENT_VOLUME_CHANGED) { it.onVolumeChanged(getVolume()) }
     }
 
     override fun clearVideoSurface() {
@@ -746,6 +853,16 @@ class VlcPlayer(ctx: Context) : BasePlayer(), MediaPlayer.EventListener {
 
     override fun setDeviceMuted(muted: Boolean, flags: Int) = Unit
 
-    override fun setAudioAttributes(audioAttributes: AudioAttributes, handleAudioFocus: Boolean) =
-        Unit
+    override fun setAudioAttributes(audioAttributes: AudioAttributes, handleAudioFocus: Boolean) {
+        mediaAudioAttributes = audioAttributes
+        this.handleAudioFocus = handleAudioFocus
+        if (!handleAudioFocus) {
+            abandonAudioFocus()
+        } else if (player.isPlaying && !requestAudioFocus()) {
+            applicationHandler.post { player.pause() }
+        }
+        notifyListeners(EVENT_AUDIO_ATTRIBUTES_CHANGED) {
+            it.onAudioAttributesChanged(audioAttributes)
+        }
+    }
 }

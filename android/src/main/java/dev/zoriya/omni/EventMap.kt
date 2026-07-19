@@ -127,7 +127,18 @@ class EventMap(private val player: Player) : HybridOmniEventMapSpec(), Player.Li
     }
 
     override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+        if (reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS) {
+            onAudioFocusChangeListeners.forEach { it("loss") }
+        }
         onIsPlayingChanged(player.isPlaying)
+    }
+
+    override fun onPlaybackSuppressionReasonChanged(playbackSuppressionReason: Int) {
+        val status =
+            if (playbackSuppressionReason == Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS)
+                "lossTransient"
+            else "gain"
+        onAudioFocusChangeListeners.forEach { it(status) }
     }
 
     override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -172,6 +183,7 @@ class EventMap(private val player: Player) : HybridOmniEventMapSpec(), Player.Li
         onErrorListeners.forEach {
             it(error.errorCodeName, error.message ?: "unknown message")
         }
+        playerStatusListeners.forEach { it(PlayerStatus.ERROR) }
     }
 
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {

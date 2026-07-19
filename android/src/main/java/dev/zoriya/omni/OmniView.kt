@@ -3,7 +3,6 @@ package dev.zoriya.omni
 import android.app.PictureInPictureParams
 import android.graphics.Rect
 import android.os.Build
-import android.util.Log
 import android.util.Rational
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -16,6 +15,7 @@ import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.uimanager.ThemedReactContext
 import com.margelo.nitro.omni.HybridOmniPlayerSpec
 import com.margelo.nitro.omni.HybridOmniViewSpec
+import com.margelo.nitro.omni.SubtitleAssets
 import java.lang.ref.WeakReference
 
 class OmniView(val context: ThemedReactContext) :
@@ -87,6 +87,9 @@ class OmniView(val context: ThemedReactContext) :
     override var autoplay: Boolean? = true
     override var autoPip: Boolean? = true
 
+    // Web-only; the native view uses embedded fonts and renders subtitles via VLC.
+    override var subtitleAssets: SubtitleAssets? = null
+
     init {
         context.addLifecycleEventListener(this)
     }
@@ -108,8 +111,6 @@ class OmniView(val context: ThemedReactContext) :
     }
 
     override fun afterUpdate() {
-        Log.e("omniView", "After update called ${System.identityHashCode(this)}")
-
         val curPip = activeView.get()
         when {
             autoPip == true && curPip == this -> {}
@@ -214,7 +215,6 @@ class OmniView(val context: ThemedReactContext) :
             return
         }
 
-        Log.e("omni", "layout change")
         val autoEnterEnabled =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
             autoPip == true &&

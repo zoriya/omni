@@ -7,15 +7,17 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import android.view.SurfaceHolder
 import androidx.core.app.NotificationCompat
+import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import com.margelo.nitro.NitroModules
+import com.margelo.nitro.omni.CastStatus
 import com.margelo.nitro.omni.HybridOmniPlayerSpec
+import com.margelo.nitro.omni.MixAudioMode
 import com.margelo.nitro.omni.PlayerStatus
 import com.margelo.nitro.omni.Rendition
 import com.margelo.nitro.omni.Source
@@ -54,6 +56,13 @@ class OmniPlayer : HybridOmniPlayerSpec() {
             }
             field = value
         }
+
+    // TODO: cast is not implemented on the native (Android) side yet.
+    override val castStatus: CastStatus get() = CastStatus.UNSUPPORTED
+
+    override fun toggleCastStatus() {
+        // TODO: implement casting on Android.
+    }
 
     override fun dispose() {
         showNotification = false
@@ -147,9 +156,8 @@ class OmniPlayer : HybridOmniPlayerSpec() {
         set = { value -> player.setPlaybackSpeed(value.toFloat().coerceAtLeast(0f)) }
     )
 
-    var _muted = false
     override var muted by mainThreadProperty(
-        get = { _muted },
+        get = { player.volume <= 0f },
         set = { value -> if (value) player.mute() else player.unmute() }
     )
 
@@ -170,7 +178,12 @@ class OmniPlayer : HybridOmniPlayerSpec() {
     }
 
     override fun setSource(src: Source) {
-        Log.i("omni", "update source")
+        val handleAudioFocus = (src.mixAudio ?: MixAudioMode.AUTO) != MixAudioMode.MIXWITHOTHERS
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+            .build()
+        runOnMainThread { player.setAudioAttributes(audioAttributes, handleAudioFocus) }
         val source = src.src.firstOrNull()
         if (source == null) {
             runOnMainThreadSync {
