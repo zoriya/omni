@@ -88,7 +88,7 @@ function PlayerExample({
 
 	useEffect(() => {
 		refreshTracks();
-	}, [refreshTracks, trackLabel]);
+	}, [refreshTracks]);
 
 	const pushLog = useCallback((message: string) => {
 		setLogs((prev) => {
@@ -194,7 +194,7 @@ function PlayerExample({
 
 	const cyclePlaybackRate = () => {
 		const rates = [0.75, 1, 1.25, 1.5, 2];
-		const index = rates.findIndex((rate) => rate === playbackRate);
+		const index = rates.indexOf(playbackRate);
 		const nextIndex = (index + 1) % rates.length;
 		player.playbackRate = rates[nextIndex];
 	};

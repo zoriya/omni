@@ -9,6 +9,7 @@ import {
 	useRef,
 	useSyncExternalStore,
 } from "react";
+import { usePlayerState } from "./events";
 import {
 	getSubtitleFormat,
 	isCustomSubtitle,
@@ -58,35 +59,41 @@ const SubtitleOverlay = ({
 			const renditions = player.rendition;
 			const videoWidth = Math.max(0, ...renditions.map((r) => r.width));
 			const videoHeight = Math.max(0, ...renditions.map((r) => r.height));
-			import("jassub").then(({ default: JASSUB }) => {
-				const instance = new JASSUB({
-					video: el,
-					subUrl: subtitle.link,
-					...(videoWidth && { videoWidth }),
-					...(videoHeight && { videoHeight }),
-					...(fonts?.length && { fonts }),
-					...(jassub?.workerUrl && { workerUrl: jassub.workerUrl }),
-					...(jassub?.wasmUrl && { wasmUrl: jassub.wasmUrl }),
-					...(jassub?.modernWasmUrl && { modernWasmUrl: jassub.modernWasmUrl }),
-					...(jassub?.fontUrl && {
-						availableFonts: { "liberation sans": jassub.fontUrl },
-						defaultFont: "liberation sans",
-					}),
-				});
-				attach({ destroy: () => instance.destroy() });
-			});
+			import("jassub")
+				.then(({ default: JASSUB }) => {
+					const instance = new JASSUB({
+						video: el,
+						subUrl: subtitle.link,
+						...(videoWidth && { videoWidth }),
+						...(videoHeight && { videoHeight }),
+						...(fonts?.length && { fonts }),
+						...(jassub?.workerUrl && { workerUrl: jassub.workerUrl }),
+						...(jassub?.wasmUrl && { wasmUrl: jassub.wasmUrl }),
+						...(jassub?.modernWasmUrl && {
+							modernWasmUrl: jassub.modernWasmUrl,
+						}),
+						...(jassub?.fontUrl && {
+							availableFonts: { "liberation sans": jassub.fontUrl },
+							defaultFont: "liberation sans",
+						}),
+					});
+					attach({ destroy: () => instance.destroy() });
+				})
+				.catch((e) => console.error("[omni] failed to render ass subtitle", e));
 		} else {
 			const pgs = assetsRef.current?.pgs;
-			import("libpgs").then(({ PgsRenderer }) => {
-				const instance = new PgsRenderer({
-					video: el,
-					subUrl: subtitle.link,
-					workerUrl:
-						pgs?.workerUrl ??
-						new URL("libpgs/dist/libpgs.worker.js", import.meta.url).href,
-				});
-				attach({ destroy: () => instance.dispose() });
-			});
+			import("libpgs")
+				.then(({ PgsRenderer }) => {
+					const instance = new PgsRenderer({
+						video: el,
+						subUrl: subtitle.link,
+						workerUrl:
+							pgs?.workerUrl ??
+							new URL("libpgs/dist/libpgs.worker.js", import.meta.url).href,
+					});
+					attach({ destroy: () => instance.dispose() });
+				})
+				.catch((e) => console.error("[omni] failed to render pgs subtitle", e));
 		}
 
 		return () => {
@@ -116,6 +123,7 @@ export const OmniView = ({
 
 	const headersRef = useRef(src?.headers);
 	headersRef.current = src?.headers;
+	const castId = player.source?.castId;
 	const castData = player.source?.castData;
 
 	const config = useMemo<HlsMediaConfig>(
@@ -132,10 +140,15 @@ export const OmniView = ({
 			googleCast: {
 				receiver: player.castOptions?.receiverApplicationId,
 				customData: castData ?? null,
+				...(castId && { src: castId }),
 			},
 		}),
-		[player.castOptions, castData],
+		[player.castOptions, castData, castId],
 	);
+
+	// While casting, the receiver renders subtitles (the player forwards the
+	// selection); skip rendering them locally on the idle <video>.
+	const castStatus = usePlayerState("castStatus");
 
 	return (
 		<VideoPlayer.Container
@@ -166,11 +179,13 @@ export const OmniView = ({
 						))}
 				</Tech>
 			)}
-			<SubtitleOverlay
-				video={ref}
-				assets={subtitleAssets}
-				fonts={player.source?.fonts}
-			/>
+			{castStatus !== "connected" && castStatus !== "connecting" && (
+				<SubtitleOverlay
+					video={ref}
+					assets={subtitleAssets}
+					fonts={player.source?.fonts}
+				/>
+			)}
 		</VideoPlayer.Container>
 	);
 };

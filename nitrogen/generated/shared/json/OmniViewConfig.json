@@ -1,13 +1,13 @@
 {
-  "uiViewClassName": "OmniView",
-  "supportsRawText": false,
-  "bubblingEventTypes": {},
-  "directEventTypes": {},
-  "validAttributes": {
-    "player": true,
-    "autoplay": true,
-    "autoPip": true,
-    "subtitleAssets": true,
-    "hybridRef": true
-  }
+	"uiViewClassName": "OmniView",
+	"supportsRawText": false,
+	"bubblingEventTypes": {},
+	"directEventTypes": {},
+	"validAttributes": {
+		"player": true,
+		"autoplay": true,
+		"autoPip": true,
+		"subtitleAssets": true,
+		"hybridRef": true
+	}
 }

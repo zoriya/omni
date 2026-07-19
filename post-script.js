@@ -20,7 +20,10 @@ const updateViewManagerFiles = async (file) => {
 	const viewManagerStr = await readFile(viewManagerFile, { encoding: "utf8" });
 	await writeFile(
 		viewManagerFile,
-		viewManagerStr.replace(/com\.margelo\.nitro\.omni\.\*/g, "dev.zoriya.omni.*"),
+		viewManagerStr.replace(
+			/com\.margelo\.nitro\.omni\.\*/g,
+			"dev.zoriya.omni.*",
+		),
 	);
 };
 
@@ -49,6 +52,9 @@ const androidWorkaround = async () => {
 	}
 
 	const str = await readFile(androidOnLoadFile, { encoding: "utf8" });
-	await writeFile(androidOnLoadFile, str.replace(/com\/margelo\/nitro\//g, "dev/zoriya/"));
+	await writeFile(
+		androidOnLoadFile,
+		str.replace(/com\/margelo\/nitro\//g, "dev/zoriya/"),
+	);
 };
 androidWorkaround();

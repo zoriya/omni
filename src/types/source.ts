@@ -7,6 +7,8 @@ export interface Source {
 	fonts?: string[];
 	metadata?: Metadata;
 	mixAudio?: MixAudioMode;
+	// contentId of a cast request. defaults to src but can be overridden here.
+	castId?: string;
 	// Opaque, consumer-defined payload forwarded verbatim to the cast receiver
 	// as the load request's customData. omni does not interpret it.
 	castData?: Record<string, string>;

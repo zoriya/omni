@@ -242,6 +242,26 @@ export class WebOmniPlayer implements OmniPlayer {
 		const tracks = selectTextTrack(this._store.state);
 		tracks?.selectSubtitlesTrack(overlay || !subtitle ? "off" : subtitle.id);
 		this.setOverlaySubtitle(overlay ?? null);
+
+		if (this.castStatus === "connected") {
+			try {
+				// if the cast receiver handles overlay subtitles like us, send this message.
+				const ctx = (
+					window as unknown as {
+						// biome-ignore lint/suspicious/noExplicitAny: cast sender SDK global
+						cast?: { framework?: { CastContext?: { getInstance(): any } } };
+					}
+				).cast?.framework?.CastContext?.getInstance?.();
+				ctx
+					?.getCurrentSession?.()
+					?.sendMessage("urn:x-cast:dev.zoriya.omni", {
+						subtitle: overlay?.id ?? null,
+					})
+					?.catch?.(() => {});
+			} catch {
+				// no active cast session / sender SDK not loaded
+			}
+		}
 	}
 
 	private setOverlaySubtitle(sub: Subtitle | null): void {
