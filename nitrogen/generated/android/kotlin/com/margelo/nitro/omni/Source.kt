@@ -38,6 +38,9 @@ data class Source(
   val mixAudio: MixAudioMode?,
   @DoNotStrip
   @Keep
+  val castId: String?,
+  @DoNotStrip
+  @Keep
   val castData: Map<String, String>?
 ) {
   /* primary constructor */
@@ -51,6 +54,7 @@ data class Source(
       && Objects.deepEquals(this.fonts, other.fonts)
       && Objects.deepEquals(this.metadata, other.metadata)
       && Objects.deepEquals(this.mixAudio, other.mixAudio)
+      && Objects.deepEquals(this.castId, other.castId)
       && Objects.deepEquals(this.castData, other.castData)
   }
 
@@ -62,6 +66,7 @@ data class Source(
       fonts,
       metadata,
       mixAudio,
+      castId,
       castData
     ).contentDeepHashCode()
   }
@@ -74,8 +79,8 @@ data class Source(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(src: Array<VideoSrc>, startTime: Double?, subtitles: Array<Subtitle>, fonts: Array<String>?, metadata: Metadata?, mixAudio: MixAudioMode?, castData: Map<String, String>?): Source {
-      return Source(src, startTime, subtitles, fonts, metadata, mixAudio, castData)
+    private fun fromCpp(src: Array<VideoSrc>, startTime: Double?, subtitles: Array<Subtitle>, fonts: Array<String>?, metadata: Metadata?, mixAudio: MixAudioMode?, castId: String?, castData: Map<String, String>?): Source {
+      return Source(src, startTime, subtitles, fonts, metadata, mixAudio, castId, castData)
     }
   }
 }

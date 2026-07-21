@@ -59,11 +59,12 @@ namespace margelo::nitro::omni {
     std::optional<std::vector<std::string>> fonts     SWIFT_PRIVATE;
     std::optional<Metadata> metadata     SWIFT_PRIVATE;
     std::optional<MixAudioMode> mixAudio     SWIFT_PRIVATE;
+    std::optional<std::string> castId     SWIFT_PRIVATE;
     std::optional<std::unordered_map<std::string, std::string>> castData     SWIFT_PRIVATE;
 
   public:
     Source() = default;
-    explicit Source(std::vector<VideoSrc> src, std::optional<double> startTime, std::vector<Subtitle> subtitles, std::optional<std::vector<std::string>> fonts, std::optional<Metadata> metadata, std::optional<MixAudioMode> mixAudio, std::optional<std::unordered_map<std::string, std::string>> castData): src(src), startTime(startTime), subtitles(subtitles), fonts(fonts), metadata(metadata), mixAudio(mixAudio), castData(castData) {}
+    explicit Source(std::vector<VideoSrc> src, std::optional<double> startTime, std::vector<Subtitle> subtitles, std::optional<std::vector<std::string>> fonts, std::optional<Metadata> metadata, std::optional<MixAudioMode> mixAudio, std::optional<std::string> castId, std::optional<std::unordered_map<std::string, std::string>> castData): src(src), startTime(startTime), subtitles(subtitles), fonts(fonts), metadata(metadata), mixAudio(mixAudio), castId(castId), castData(castData) {}
 
   public:
     friend bool operator==(const Source& lhs, const Source& rhs) = default;
@@ -85,6 +86,7 @@ namespace margelo::nitro {
         JSIConverter<std::optional<std::vector<std::string>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "fonts"))),
         JSIConverter<std::optional<margelo::nitro::omni::Metadata>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "metadata"))),
         JSIConverter<std::optional<margelo::nitro::omni::MixAudioMode>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "mixAudio"))),
+        JSIConverter<std::optional<std::string>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "castId"))),
         JSIConverter<std::optional<std::unordered_map<std::string, std::string>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "castData")))
       );
     }
@@ -96,6 +98,7 @@ namespace margelo::nitro {
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "fonts"), JSIConverter<std::optional<std::vector<std::string>>>::toJSI(runtime, arg.fonts));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "metadata"), JSIConverter<std::optional<margelo::nitro::omni::Metadata>>::toJSI(runtime, arg.metadata));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "mixAudio"), JSIConverter<std::optional<margelo::nitro::omni::MixAudioMode>>::toJSI(runtime, arg.mixAudio));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "castId"), JSIConverter<std::optional<std::string>>::toJSI(runtime, arg.castId));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "castData"), JSIConverter<std::optional<std::unordered_map<std::string, std::string>>>::toJSI(runtime, arg.castData));
       return obj;
     }
@@ -113,6 +116,7 @@ namespace margelo::nitro {
       if (!JSIConverter<std::optional<std::vector<std::string>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "fonts")))) return false;
       if (!JSIConverter<std::optional<margelo::nitro::omni::Metadata>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "metadata")))) return false;
       if (!JSIConverter<std::optional<margelo::nitro::omni::MixAudioMode>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "mixAudio")))) return false;
+      if (!JSIConverter<std::optional<std::string>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "castId")))) return false;
       if (!JSIConverter<std::optional<std::unordered_map<std::string, std::string>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "castData")))) return false;
       return true;
     }

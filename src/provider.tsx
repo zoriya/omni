@@ -16,7 +16,7 @@ export const OmniProvider = ({
 	showNotification = false,
 	cast: _,
 }: {
-	source: Source;
+	source?: Source;
 	cast?: CastOptions;
 	children: ReactNode;
 	showNotification?: boolean;

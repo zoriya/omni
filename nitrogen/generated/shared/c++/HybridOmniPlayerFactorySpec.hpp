@@ -21,6 +21,7 @@ namespace margelo::nitro::omni { struct Source; }
 #include <memory>
 #include "HybridOmniPlayerSpec.hpp"
 #include "Source.hpp"
+#include <optional>
 
 namespace margelo::nitro::omni {
 
@@ -53,7 +54,7 @@ namespace margelo::nitro::omni {
 
     public:
       // Methods
-      virtual std::shared_ptr<HybridOmniPlayerSpec> createPlayer(const Source& props) = 0;
+      virtual std::shared_ptr<HybridOmniPlayerSpec> createPlayer(const std::optional<Source>& props) = 0;
 
     protected:
       // Hybrid Setup

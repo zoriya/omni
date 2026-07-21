@@ -110,7 +110,7 @@ abstract class HybridOmniPlayerSpec: HybridObject() {
   // Methods
   @DoNotStrip
   @Keep
-  abstract fun setSource(src: Source): Unit
+  abstract fun setSource(src: Source?): Unit
   
   @DoNotStrip
   @Keep

@@ -54,6 +54,8 @@ namespace margelo::nitro::omni {
       jni::local_ref<JMetadata> metadata = this->getFieldValue(fieldMetadata);
       static const auto fieldMixAudio = clazz->getField<JMixAudioMode>("mixAudio");
       jni::local_ref<JMixAudioMode> mixAudio = this->getFieldValue(fieldMixAudio);
+      static const auto fieldCastId = clazz->getField<jni::JString>("castId");
+      jni::local_ref<jni::JString> castId = this->getFieldValue(fieldCastId);
       static const auto fieldCastData = clazz->getField<jni::JMap<jni::JString, jni::JString>>("castData");
       jni::local_ref<jni::JMap<jni::JString, jni::JString>> castData = this->getFieldValue(fieldCastData);
       return Source(
@@ -90,6 +92,7 @@ namespace margelo::nitro::omni {
         }(fonts)) : std::nullopt,
         metadata != nullptr ? std::make_optional(metadata->toCpp()) : std::nullopt,
         mixAudio != nullptr ? std::make_optional(mixAudio->toCpp()) : std::nullopt,
+        castId != nullptr ? std::make_optional(castId->toStdString()) : std::nullopt,
         castData != nullptr ? std::make_optional([&]() {
           std::unordered_map<std::string, std::string> __map;
           __map.reserve(castData->size());
@@ -107,7 +110,7 @@ namespace margelo::nitro::omni {
      */
     [[maybe_unused]]
     static jni::local_ref<JSource::javaobject> fromCpp(const Source& value) {
-      using JSignature = JSource(jni::alias_ref<jni::JArrayClass<JVideoSrc>>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JArrayClass<JSubtitle>>, jni::alias_ref<jni::JArrayClass<jni::JString>>, jni::alias_ref<JMetadata>, jni::alias_ref<JMixAudioMode>, jni::alias_ref<jni::JMap<jni::JString, jni::JString>>);
+      using JSignature = JSource(jni::alias_ref<jni::JArrayClass<JVideoSrc>>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JArrayClass<JSubtitle>>, jni::alias_ref<jni::JArrayClass<jni::JString>>, jni::alias_ref<JMetadata>, jni::alias_ref<JMixAudioMode>, jni::alias_ref<jni::JString>, jni::alias_ref<jni::JMap<jni::JString, jni::JString>>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
@@ -145,6 +148,7 @@ namespace margelo::nitro::omni {
         }(value.fonts.value()) : nullptr,
         value.metadata.has_value() ? JMetadata::fromCpp(value.metadata.value()) : nullptr,
         value.mixAudio.has_value() ? JMixAudioMode::fromCpp(value.mixAudio.value()) : nullptr,
+        value.castId.has_value() ? jni::make_jstring(value.castId.value()) : nullptr,
         value.castData.has_value() ? [&]() -> jni::local_ref<jni::JMap<jni::JString, jni::JString>> {
           auto __map = jni::JHashMap<jni::JString, jni::JString>::create(value.castData.value().size());
           for (const auto& __entry : value.castData.value()) {

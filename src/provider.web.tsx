@@ -22,7 +22,7 @@ export const OmniProvider = ({
 	cast,
 	showNotification = false,
 }: {
-	source: Source;
+	source?: Source;
 	cast?: CastOptions;
 	children: ReactNode;
 	showNotification?: boolean;
@@ -47,7 +47,7 @@ const PlayerInitializer = ({
 	showNotification,
 }: {
 	children: ReactNode;
-	source: Source;
+	source?: Source;
 	cast?: CastOptions;
 	showNotification: boolean;
 }) => {
@@ -56,11 +56,11 @@ const PlayerInitializer = ({
 	const seekedForSrc = useRef<string | undefined>(undefined);
 
 	useEffect(() => {
-		player.source = source;
-		const uri = source.src[0]?.uri;
+		player.source = source ?? null;
+		const uri = source?.src[0]?.uri;
 		if (uri !== seekedForSrc.current) {
 			seekedForSrc.current = uri;
-			if (source.startTime) store.seek(source.startTime);
+			if (source?.startTime) store.seek(source.startTime);
 		}
 	}, [source, store]);
 

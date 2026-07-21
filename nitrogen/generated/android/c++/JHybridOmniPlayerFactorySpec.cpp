@@ -24,12 +24,12 @@ namespace margelo::nitro::omni { enum class MixAudioMode; }
 #include "HybridOmniPlayerSpec.hpp"
 #include "JHybridOmniPlayerSpec.hpp"
 #include "Source.hpp"
+#include <optional>
 #include "JSource.hpp"
 #include "VideoSrc.hpp"
 #include <vector>
 #include "JVideoSrc.hpp"
 #include <string>
-#include <optional>
 #include <unordered_map>
 #include "Subtitle.hpp"
 #include "JSubtitle.hpp"
@@ -71,9 +71,9 @@ namespace margelo::nitro::omni {
   
 
   // Methods
-  std::shared_ptr<HybridOmniPlayerSpec> JHybridOmniPlayerFactorySpec::createPlayer(const Source& props) {
+  std::shared_ptr<HybridOmniPlayerSpec> JHybridOmniPlayerFactorySpec::createPlayer(const std::optional<Source>& props) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JHybridOmniPlayerSpec::JavaPart>(jni::alias_ref<JSource> /* props */)>("createPlayer");
-    auto __result = method(_javaPart, JSource::fromCpp(props));
+    auto __result = method(_javaPart, props.has_value() ? JSource::fromCpp(props.value()) : nullptr);
     return __result->getJHybridOmniPlayerSpec();
   }
 

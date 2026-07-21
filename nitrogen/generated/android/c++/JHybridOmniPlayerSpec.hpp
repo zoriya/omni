@@ -76,7 +76,7 @@ namespace margelo::nitro::omni {
 
   public:
     // Methods
-    void setSource(const Source& src) override;
+    void setSource(const std::optional<Source>& src) override;
     void play() override;
     void pause() override;
     void seekBy(double offset) override;

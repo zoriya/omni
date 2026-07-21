@@ -177,7 +177,14 @@ class OmniPlayer : HybridOmniPlayerSpec() {
         }
     }
 
-    override fun setSource(src: Source) {
+    override fun setSource(src: Source?) {
+        if (src == null) {
+            runOnMainThreadSync {
+                player.setMediaItem(MediaItem.EMPTY)
+                player.prepare()
+            }
+            return
+        }
         val handleAudioFocus = (src.mixAudio ?: MixAudioMode.AUTO) != MixAudioMode.MIXWITHOTHERS
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
